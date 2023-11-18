@@ -11,8 +11,7 @@ run: main.py
 	python main.py
 
 run_fe: main_fe.py
-	rm -f fl_model.keras
-	rm -f history.json
+	rm -f 'final_fl*distributed*'
 	python main_fe.py
 
 show: show.py

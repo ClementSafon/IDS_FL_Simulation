@@ -53,7 +53,7 @@ def create_partition(NUM_CLIENTS: int) -> list[tuple[np.ndarray, np.ndarray]]:
     partitions = []
     for n in range(NUM_CLIENTS):
         data = get_data("data_party" + str(n) + ".npz")
-        partitions.append(data[0:2])
+        partitions.append(data)
     print("Partitions created !")
     return partitions
 

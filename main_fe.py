@@ -54,10 +54,6 @@ def mk_model() -> keras.Model:
     )
     return model
 
-
-mk_model().summary()
-
-
 def get_evaluate_fn(testset):
     """Return an evaluation function for server-side (i.e. centralized) evaluation."""
     x_test, y_test = testset
@@ -192,8 +188,10 @@ if __name__ == "__main__":
     NUM_ROUNDS = 10
     NUM_CLIENTS = 3
 
-    FINAL_MODEL_PATH = "final_fl_model_decentralized_evaluation.keras"
-    FINAL_HISTORY_PATH = "final_fl_history_decentralized_evaluation.json"
+    METRIC_EVALUATION_TARGET = {"label": "accuracy", "value":0.88}
+
+    FINAL_MODEL_PATH = "final_fl_model_distributed_evaluation.keras"
+    FINAL_HISTORY_PATH = "final_fl_history_distributed_evaluation.json"
 
     partitions = create_partition(NUM_CLIENTS)
 
@@ -228,7 +226,7 @@ if __name__ == "__main__":
         config=flwr.server.ServerConfig(num_rounds=NUM_ROUNDS),
         strategy=strategy,
         client_resources=client_resources,
-        metric_evaluation_target={"label": "accuracy", "value":0.88},
+        metric_evaluation_target=METRIC_EVALUATION_TARGET,
         actor_kwargs={
             "on_actor_init_fn": enable_tf_gpu_growth  # Enable GPU growth upon actor init.
         },
@@ -237,4 +235,4 @@ if __name__ == "__main__":
 
     # Save history
     with open(FINAL_HISTORY_PATH, "w") as f:
-        f.write(str(history.metrics_centralized))
+        f.write(str(history.metrics_distributed))

@@ -112,7 +112,7 @@ def mk_client_fn(partitions):
 
     def client_fn(cid: str) -> FlowerClient:
         """Create a new FlowerClient for partition i."""
-        x_train, y_train = partitions[int(cid)]
+        x_train, y_train, _ , __ = partitions[int(cid)]
 
         return FlowerClient(x_train, y_train)
 
