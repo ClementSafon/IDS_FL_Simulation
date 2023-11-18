@@ -20,3 +20,7 @@ show: show.py
 
 eval: eval.py
 	python eval.py
+
+clean:
+	rm -f data_party*
+	rm -f final_*

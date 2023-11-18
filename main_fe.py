@@ -28,45 +28,13 @@ from flwr.common import (
 )
 from flwr.common.typing import Scalar, Union, Optional
 
+from utils import (
+    create_partition,
+)
 
 # print("TensorFlow version:", tf.__version__)
 # print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
 # enable_tf_gpu_growth()
-
-def get_data(file_name):
-    try:
-        print("Loaded training data from " + str(file_name))
-        # load the data from the npz file
-        data = np.load(file_name)
-        print(data)
-        X_train = data["x_train"]
-        X_test = data["x_test"]
-        y_train = data["y_train"]
-        y_test = data["y_test"]
-    except Exception:
-        raise IOError("Unable to load training data from path " "provided in config file: " + file_name)
-    print("Client : " + str(file_name) + " has " + str(len(X_train)) + " training points and " + str(len(X_test)) + " testing points")
-    print("Client : " + str(file_name) + " has " + str(len(y_train)) + " training labels and " + str(len(y_test)) + " testing labels")
-    return X_train, y_train, X_test, y_test
-
-
-BATCH_SIZE = 128
-NUM_EPOCHS = 10
-NUM_ROUNDS = 10
-
-
-NUM_CLIENTS = 3
-partitions = []
-
-for n in range(NUM_CLIENTS):
-    data_temp = get_data("data_party" + str(n) + ".npz")
-    partitions.append(data_temp)
-# partitions = [(x_train, y_train, x_test, y_test), ...]
-
-
-n_features = data_temp[0].shape[1]
-#print(n_features)
-
 
 def mk_model() -> keras.Model:
     model = tf.keras.models.Sequential(
@@ -108,11 +76,6 @@ def get_evaluate_fn(testset):
         
         return model.evaluate(x_test, y_test, verbose=cast(str, 0))
     return evaluate
-
-
-def eval_model(parameters, testset):
-    loss, metrics = get_evaluate_fn(testset)(0, parameters, {})
-    return {"loss": loss} | metrics
 
 
 class FlowerClient(flwr.client.NumPyClient):
@@ -204,42 +167,74 @@ def evaluate_metrics_aggregation_fn(eval_metrics: list[int, dict[str, Scalar]]) 
     return {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1, "miss_rate": miss_rate}
 
 
+if __name__ == "__main__":
 
-strategy = FedAvg(
-    fraction_fit=1.0,  # Sample 100% of available clients for training
-    fraction_evaluate=0.5,  # Disable the federated evaluation
-    min_evaluate_clients=NUM_CLIENTS,
-    min_fit_clients=NUM_CLIENTS,  # Always sample all clients
-    min_available_clients=NUM_CLIENTS,
-    # evaluate_fn=get_evaluate_fn(testset),  # global evaluation function
-    evaluate_metrics_aggregation_fn=evaluate_metrics_aggregation_fn,
-    on_evaluate_config_fn=evaluate_config,
-    initial_parameters=ndarrays_to_parameters(mk_model().get_weights()),
-)
+    ## -------------------  ##
+    ## Manual configuration ##
+    ## -------------------  ##
 
-# With a dictionary, you tell Flower's VirtualClientEngine that each
-# client needs exclusive access to these many resources in order to run
-client_resources = {
-    "num_cpus": max(int((os.cpu_count() or 1) / NUM_CLIENTS), 1),
-    # "num_cpus": 1,
-    "num_gpus": 0.0,
-    
-}
+    print("")
+    print("### FL Simulation - Federated Evaluation ###")
+    print("")
+    print("Initialization...")
+    print("")
+    print("TensorFlow version:", tf.__version__)
+    print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
+    print("Num CPUs Available: ", os.cpu_count())
+    print("")
+    print("Loading parameters...")
+    print("")
+    print("Loading data...")
 
-# Start simulation
-history = flwr.simulation.start_simulation(
-    client_fn=mk_client_fn(partitions),
-    num_clients=NUM_CLIENTS,
-    config=flwr.server.ServerConfig(num_rounds=NUM_ROUNDS),
-    strategy=strategy,
-    client_resources=client_resources,
-    metric_evaluation_target={"label": "accuracy", "value":0.88},
-    actor_kwargs={
-        "on_actor_init_fn": enable_tf_gpu_growth  # Enable GPU growth upon actor init.
-    },
-    ray_init_args={"num_gpus": len(tf.config.list_physical_devices("GPU"))},
-)
+    BATCH_SIZE = 64
+    NUM_EPOCHS = 10
+    VALIDATION_SPLIT = 0.2
+    NUM_ROUNDS = 10
+    NUM_CLIENTS = 3
 
-# Save history
-with open("history.json", "w") as f:
-    f.write(str(history.metrics_distributed))
+    FINAL_MODEL_PATH = "final_fl_model_decentralized_evaluation.keras"
+    FINAL_HISTORY_PATH = "final_fl_history_decentralized_evaluation.json"
+
+    partitions = create_partition(NUM_CLIENTS)
+
+    n_features = partitions[0][0].shape[1]
+
+
+    strategy = FedAvg(
+        fraction_fit=1.0,  # Sample 100% of available clients for training
+        fraction_evaluate=0.5,  # Disable the federated evaluation
+        min_evaluate_clients=NUM_CLIENTS,
+        min_fit_clients=NUM_CLIENTS,  # Always sample all clients
+        min_available_clients=NUM_CLIENTS,
+        # evaluate_fn=get_evaluate_fn(testset),  # global evaluation function
+        evaluate_metrics_aggregation_fn=evaluate_metrics_aggregation_fn,
+        on_evaluate_config_fn=evaluate_config,
+        initial_parameters=ndarrays_to_parameters(mk_model().get_weights()),
+    )
+
+    # With a dictionary, you tell Flower's VirtualClientEngine that each
+    # client needs exclusive access to these many resources in order to run
+    client_resources = {
+        "num_cpus": max(int((os.cpu_count() or 1) / NUM_CLIENTS), 1),
+        # "num_cpus": 1,
+        "num_gpus": 0.0,
+        
+    }
+
+    # Start simulation
+    history = flwr.simulation.start_simulation(
+        client_fn=mk_client_fn(partitions),
+        num_clients=NUM_CLIENTS,
+        config=flwr.server.ServerConfig(num_rounds=NUM_ROUNDS),
+        strategy=strategy,
+        client_resources=client_resources,
+        metric_evaluation_target={"label": "accuracy", "value":0.88},
+        actor_kwargs={
+            "on_actor_init_fn": enable_tf_gpu_growth  # Enable GPU growth upon actor init.
+        },
+        ray_init_args={"num_gpus": len(tf.config.list_physical_devices("GPU"))},
+    )
+
+    # Save history
+    with open(FINAL_HISTORY_PATH, "w") as f:
+        f.write(str(history.metrics_centralized))

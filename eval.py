@@ -1,4 +1,5 @@
-from main import get_m_data, create_centralized_testset, get_model
+from utils import get_m_data, create_centralized_testset
+from main import get_model
 import numpy as np
 import pandas as pd
 
