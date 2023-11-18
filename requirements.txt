@@ -1,0 +1,6 @@
+flwr
+pandas
+scikit-learn
+tensorflow
+matplotlib
+flwr['simulation']

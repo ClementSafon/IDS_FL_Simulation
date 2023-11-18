@@ -1,0 +1,12 @@
+# Ignore venv folder
+venv/
+
+# Ignore __pycache__ directory
+__pycache__/
+
+# Ignore dataset folder
+dataset/
+
+# Ignore preprocessed data and results
+data_party*
+final_fl*
