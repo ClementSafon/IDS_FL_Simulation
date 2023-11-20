@@ -105,7 +105,8 @@ class FlowerClient(flwr.client.NumPyClient):
 
         model = mk_model()  # Construct the model
         model.set_weights(parameters)  # Update model with the latest parameters
-        loss, _ = model.evaluate(self.x_test, self.y_test, verbose=cast(str, 0), steps=steps)
+        # loss, _ = model.evaluate(self.x_test, self.y_test, verbose=cast(str, 0), steps=steps)
+        loss, _ = model.evaluate(self.x_test, self.y_test, verbose=cast(str, 0))
 
         inferences = model.predict(self.x_test, verbose=cast(str, 0))
         y_pred = np.argmax(np.round(inferences), axis=1)
@@ -119,6 +120,9 @@ class FlowerClient(flwr.client.NumPyClient):
         recall = tp / (tp + fn)
         f1 = 2 * tp / (2 * tp + fp + fn)
         miss_rate = fn / (fn + tp)
+
+        if "save" in config.keys() and config["save"]:
+            model.save(FINAL_MODEL_PATH)
 
         return (
             loss,
@@ -145,6 +149,8 @@ def mk_client_fn(partitions):
     return client_fn
 
 def evaluate_config(rnd: int):
+    if rnd == NUM_ROUNDS:
+        return {"val_steps": 10, "save": True}
     return {"val_steps": 10}
 
 def evaluate_metrics_aggregation_fn(eval_metrics: list[int, dict[str, Scalar]]) -> dict[str, Scalar]:
@@ -188,7 +194,7 @@ if __name__ == "__main__":
     NUM_ROUNDS = 10
     NUM_CLIENTS = 3
 
-    METRIC_EVALUATION_TARGET = {"label": "accuracy", "value":0.88}
+    # METRIC_EVALUATION_TARGET = {"label": "accuracy", "value":0.99}
 
     FINAL_MODEL_PATH = "final_fl_model_distributed_evaluation.keras"
     FINAL_HISTORY_PATH = "final_fl_history_distributed_evaluation.json"
@@ -200,11 +206,10 @@ if __name__ == "__main__":
 
     strategy = FedAvg(
         fraction_fit=1.0,  # Sample 100% of available clients for training
-        fraction_evaluate=0.5,  # Disable the federated evaluation
+        fraction_evaluate=1.0,  # Disable the federated evaluation
         min_evaluate_clients=NUM_CLIENTS,
         min_fit_clients=NUM_CLIENTS,  # Always sample all clients
         min_available_clients=NUM_CLIENTS,
-        # evaluate_fn=get_evaluate_fn(testset),  # global evaluation function
         evaluate_metrics_aggregation_fn=evaluate_metrics_aggregation_fn,
         on_evaluate_config_fn=evaluate_config,
         initial_parameters=ndarrays_to_parameters(mk_model().get_weights()),
@@ -214,10 +219,9 @@ if __name__ == "__main__":
     # client needs exclusive access to these many resources in order to run
     client_resources = {
         "num_cpus": max(int((os.cpu_count() or 1) / NUM_CLIENTS), 1),
-        # "num_cpus": 1,
         "num_gpus": 0.0,
-        
     }
+
 
     # Start simulation
     history = flwr.simulation.start_simulation(
@@ -226,7 +230,7 @@ if __name__ == "__main__":
         config=flwr.server.ServerConfig(num_rounds=NUM_ROUNDS),
         strategy=strategy,
         client_resources=client_resources,
-        metric_evaluation_target=METRIC_EVALUATION_TARGET,
+        # metric_evaluation_target=METRIC_EVALUATION_TARGET,
         actor_kwargs={
             "on_actor_init_fn": enable_tf_gpu_growth  # Enable GPU growth upon actor init.
         },

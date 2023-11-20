@@ -1,9 +1,19 @@
 from utils import get_m_data, create_centralized_testset
-from main import get_model
 import numpy as np
 import pandas as pd
+import argparse
 
-NUM_CLIENTS = 3
+def get_model(model_path):
+    import tensorflow as tf
+    model = tf.keras.models.load_model(model_path)
+    return model
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--num_clients", type=int, default=3)
+parser.add_argument("--model_path", type=str, default="final_fl_model_centralized_evaluation.keras")
+args = parser.parse_args()
+
+NUM_CLIENTS = args.num_clients
 
 for n in range(NUM_CLIENTS):
     m_test = np.array([])
@@ -12,7 +22,7 @@ for n in range(NUM_CLIENTS):
 
 testset = create_centralized_testset(NUM_CLIENTS)
 
-model = get_model("final_fl_model_centralized_evaluation.keras")
+model = get_model(args.model_path)
 
 X, y = testset
 m = m_test

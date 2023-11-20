@@ -18,7 +18,9 @@ show: show.py
 	python show.py
 
 eval: eval.py
-	python eval.py
+	python eval.py --num_clients 3 --model_path final_fl_model_centralized_evaluation.keras
+	python eval.py --num_clients 3 --model_path final_fl_model_distributed_evaluation.keras
+	
 
 clean:
 	rm -f data_party*

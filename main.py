@@ -23,28 +23,23 @@ from utils import (
 # print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
 # enable_tf_gpu_growth()
 
-def get_model(file_name: str = None) -> keras.Model:
-    if file_name is None:
-        model = tf.keras.models.Sequential(
-            [
-                tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
-                tf.keras.layers.Dropout(0.5),
-                tf.keras.layers.Dense(64, activation='relu'),
-                tf.keras.layers.Dropout(0.5),
-                tf.keras.layers.Dense(64, activation="relu"),
-                tf.keras.layers.Dropout(0.5),
-                tf.keras.layers.Dense(2, activation="softmax"),
-            ]
-        )
+def get_model() -> keras.Model:
+    model = tf.keras.models.Sequential(
+        [
+            tf.keras.layers.Dense(64, activation="relu", input_shape=(n_features,)),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(64, activation="relu"),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(2, activation="softmax"),
+        ]
+    )
 
-        model.compile(
-            loss="categorical_crossentropy",
-            optimizer="adam",
-            metrics=["accuracy"],
-        )
-        return model
-    else:
-        return keras.models.load_model(file_name)
+    model.compile(
+        loss="categorical_crossentropy",
+        optimizer="adam",
+        metrics=["accuracy"],
+    )
+    return model
 
 def get_evaluate_fn(testset):
     """Return an evaluation function for server-side (i.e. centralized) evaluation."""
@@ -112,7 +107,7 @@ def mk_client_fn(partitions):
 
     def client_fn(cid: str) -> FlowerClient:
         """Create a new FlowerClient for partition i."""
-        x_train, y_train, _ , __ = partitions[int(cid)]
+        x_train, y_train = partitions[int(cid)][0:2]
 
         return FlowerClient(x_train, y_train)
 
