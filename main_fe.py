@@ -194,7 +194,7 @@ if __name__ == "__main__":
     NUM_ROUNDS = 10
     NUM_CLIENTS = 3
 
-    # METRIC_EVALUATION_TARGET = {"label": "accuracy", "value":0.99}
+    METRIC_EVALUATION_TARGET = {"label": "accuracy", "type": "limit_diff", "value": 0.05}
 
     FINAL_MODEL_PATH = "final_fl_model_distributed_evaluation.keras"
     FINAL_HISTORY_PATH = "final_fl_history_distributed_evaluation.json"
@@ -230,7 +230,7 @@ if __name__ == "__main__":
         config=flwr.server.ServerConfig(num_rounds=NUM_ROUNDS),
         strategy=strategy,
         client_resources=client_resources,
-        # metric_evaluation_target=METRIC_EVALUATION_TARGET,
+        metric_evaluation_target=METRIC_EVALUATION_TARGET,
         actor_kwargs={
             "on_actor_init_fn": enable_tf_gpu_growth  # Enable GPU growth upon actor init.
         },
