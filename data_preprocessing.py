@@ -46,7 +46,13 @@ if __name__ == "__main__":
     parser.add_argument("-n", help="number of party datasets to split into", type=int)
     parser.add_argument("-trf", help="filepath to training data")
     parser.add_argument("-tef", help="filepath to testing data")
+    parser.add_argument("-f", help="folder to save data to")
     args = parser.parse_args()
+
+    folder_name = "data_client_" + args.f
+
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
 
     train_data = pd.read_csv(args.trf)
     test_data = pd.read_csv(args.tef)
@@ -69,7 +75,7 @@ if __name__ == "__main__":
 
     print("\nExtracting and Preprocessing data for {} clients".format(args.n))
     for i in tqdm(range(args.n)):
-        name = "data_party" + str(i)
+        name = folder_name + "/party" + str(i)
         x_train = x_train_parts[i]
         x_test = x_test_parts[i]
         y_train = y_train_parts[i]
@@ -77,10 +83,6 @@ if __name__ == "__main__":
         m_train = m_train_parts[i]
         m_test = m_test_parts[i]
         np.savez(name, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test, m_train=m_train, m_test=m_test)
-
-    data_party_features = {"n_features": x_total_train.shape[1]}
-    with open("data_party_features.json", "w") as f:
-        json.dump(data_party_features, f)
     
     print("All file saved")
 

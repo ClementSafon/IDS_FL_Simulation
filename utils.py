@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 def get_data(file_name: str) -> list[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -42,7 +43,7 @@ def get_m_data(file_name: str) -> list[np.ndarray, np.ndarray]:
         raise IOError("Unable to load training data from path " "provided in config file: " + file_name)
     return [m_train, m_test]
 
-def create_partition(NUM_CLIENTS: int) -> list[tuple[np.ndarray, np.ndarray]]:
+def create_partition(dir: str) -> list[tuple[np.ndarray, np.ndarray]]:
     """
     Create a list with the data for each client
     :param NUM_CLIENTS: number of clients
@@ -51,24 +52,25 @@ def create_partition(NUM_CLIENTS: int) -> list[tuple[np.ndarray, np.ndarray]]:
     - partitions = [(x_train, y_train, x_test, y_test), ...]
     """
     partitions = []
-    for n in range(NUM_CLIENTS):
-        data = get_data("data_party" + str(n) + ".npz")
+    for file in os.listdir(dir):
+        data = get_data(dir + "/" + file)
         partitions.append(data)
     print("Partitions created !")
     return partitions
 
-def create_centralized_testset(NUM_CLIENTS: int) -> tuple[np.ndarray, np.ndarray]:
+def create_centralized_testset(dir: str) -> tuple[np.ndarray, np.ndarray]:
     """
     Create a centralized testset for the aggregator.
     :param NUM_CLIENTS: number of clients
     :return: centralized testset in the following format:
     - testset = (x_test, y_test)
     """
-    data = get_data("data_party0.npz")
-    testset = data[2:4]
-    for n in range(1, NUM_CLIENTS):
-        data = get_data("data_party" + str(n) + ".npz")
-        testset[0] = np.concatenate((testset[0], data[2]))
-        testset[1] = np.concatenate((testset[1], data[3]))
+    for i, file in enumerate(os.listdir(dir)):
+        data = get_data(dir + "/" + file)
+        if i == 0:
+            testset = data[2:4]
+        else:
+            testset[0] = np.concatenate((testset[0], data[2]))
+            testset[1] = np.concatenate((testset[1], data[3]))
     print("Centralized testset created !")
     return testset

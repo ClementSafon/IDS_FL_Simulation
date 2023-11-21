@@ -2,6 +2,7 @@ from utils import get_m_data, create_centralized_testset
 import numpy as np
 import pandas as pd
 import argparse
+import os
 
 def get_model(model_path):
     import tensorflow as tf
@@ -9,21 +10,24 @@ def get_model(model_path):
     return model
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--num_clients", type=int, default=3)
-parser.add_argument("--model_path", type=str, default="final_fl_model_centralized_evaluation.keras")
+parser.add_argument("--dir_client", type=str, required=True)
+parser.add_argument("--dir_path", type=str, required=True)
 args = parser.parse_args()
 
-NUM_CLIENTS = args.num_clients
+# get the metadata
+m_test = np.array([])
+for file in os.listdir(args.dir_client):
+    m_test = np.append(m_test, get_m_data(args.dir_client + "/" + file)[1])
 
-for n in range(NUM_CLIENTS):
-    m_test = np.array([])
-    for n in range(NUM_CLIENTS):
-        m_test = np.append(m_test, get_m_data("data_party" + str(n) + ".npz")[1])
+# get the testset
+testset = create_centralized_testset(args.dir_client)
 
-testset = create_centralized_testset(NUM_CLIENTS)
+# get the model
+model = get_model(args.dir_path + "/model.keras")
 
-model = get_model(args.model_path)
 
+
+# evaluate the model
 X, y = testset
 m = m_test
 

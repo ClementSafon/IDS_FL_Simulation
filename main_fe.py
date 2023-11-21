@@ -6,6 +6,7 @@ import math
 from collections import OrderedDict
 from typing import cast, Callable
 import time
+import argparse
 
 import flwr
 import matplotlib.pyplot as plt
@@ -39,7 +40,9 @@ from utils import (
 def mk_model() -> keras.Model:
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.Dense(64, activation="relu", input_shape=(n_features,)),
+            tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
@@ -188,21 +191,30 @@ if __name__ == "__main__":
     print("")
     print("Loading data...")
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", help="output folder suffix", type=str, required=True)
+    parser.add_argument("-d", help="data_client folder", type=str, required=True)
+    args = parser.parse_args()
+
     BATCH_SIZE = 64
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 5
     VALIDATION_SPLIT = 0.2
     NUM_ROUNDS = 10
     NUM_CLIENTS = 3
 
-    METRIC_EVALUATION_TARGET = {"label": "accuracy", "type": "limit_diff", "value": 0.05}
+    METRIC_EVALUATION_TARGET = {"label": "accuracy", "type": "limit_diff", "value": 0.01}
 
-    FINAL_MODEL_PATH = "final_fl_model_distributed_evaluation.keras"
-    FINAL_HISTORY_PATH = "final_fl_history_distributed_evaluation.json"
+    FINAL_DIR = "final_distributed_evaluation_" + args.o
+    FINAL_MODEL_PATH = "model.keras"
+    FINAL_HISTORY_PATH = "history.json"
 
-    partitions = create_partition(NUM_CLIENTS)
+    partitions = create_partition(args.d)
 
     n_features = partitions[0][0].shape[1]
 
+    if not os.path.exists(FINAL_DIR):
+        os.makedirs(FINAL_DIR)
+    os.chdir(FINAL_DIR)
 
     strategy = FedAvg(
         fraction_fit=1.0,  # Sample 100% of available clients for training

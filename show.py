@@ -1,17 +1,19 @@
 from matplotlib import pyplot as plt
 import os
+import os
 
-if os.path.exists("final_fl_history_centralized_evaluation.json"):
-    global_accuracy = []
-    with open("final_fl_history_centralized_evaluation.json", "r") as f:
+prefix = "final_centralized_evaluation"
+
+folders = [folder for folder in os.listdir() if os.path.isdir(folder) and folder.startswith(prefix)]
+
+for folder in folders:
+    with open(folder + "/history.json", "r") as f:
         json = eval(f.read())
         global_accuracy = json["accuracy"]
         global_precision = json["precision"]
         global_recall = json["recall"]
         global_f1 = json["f1"]
         global_miss_rate = json["miss_rate"]
-
-
 
     round = [data[0] for data in global_accuracy]
     acc = [100.0 * data[1] for data in global_accuracy]
@@ -28,20 +30,23 @@ if os.path.exists("final_fl_history_centralized_evaluation.json"):
     plt.xlabel("Round")
     plt.ylabel("Percentage")
     plt.legend()
-    plt.title("Metrics evolution - Centralized Evaluation")
+    plt.title("Metrics evolution - Centralized Evaluation - " + folder[folder.find("tion_") + 5:])
 
 
-if os.path.exists("final_fl_history_distributed_evaluation.json"):
-    global_accuracy = []
-    with open("final_fl_history_distributed_evaluation.json", "r") as f:
+plt.figure()
+
+prefix = "final_distributed_evaluation"
+
+folders = [folder for folder in os.listdir() if os.path.isdir(folder) and folder.startswith(prefix)]
+
+for folder in folders:
+    with open(folder + "/history.json", "r") as f:
         json = eval(f.read())
         global_accuracy = json["accuracy"]
         global_precision = json["precision"]
         global_recall = json["recall"]
         global_f1 = json["f1"]
         global_miss_rate = json["miss_rate"]
-
-
 
     round = [data[0] for data in global_accuracy]
     acc = [100.0 * data[1] for data in global_accuracy]
@@ -50,7 +55,6 @@ if os.path.exists("final_fl_history_distributed_evaluation.json"):
     f1 = [100.0 * data[1] for data in global_f1]
     # miss = [100.0 * data[1] for data in global_miss_rate]
 
-    plt.figure()
     plt.plot(round, acc, label="Accuracy")
     plt.plot(round, prec, label="Precision")
     plt.plot(round, rec, label="Recall")
@@ -59,6 +63,6 @@ if os.path.exists("final_fl_history_distributed_evaluation.json"):
     plt.xlabel("Round")
     plt.ylabel("Percentage")
     plt.legend()
-    plt.title("Metrics evolution - Distributed Evaluation")
+    plt.title("Metrics evolution - Distributed Evaluation - " + folder[folder.find("tion_") + 5:])
 
 plt.show()

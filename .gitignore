@@ -8,5 +8,5 @@ __pycache__/
 dataset/
 
 # Ignore preprocessed data and results
-data_party*
-final_fl*
+data_client_*/
+final_*
