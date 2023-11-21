@@ -7,6 +7,7 @@ prefix = "final_centralized_evaluation"
 folders = [folder for folder in os.listdir() if os.path.isdir(folder) and folder.startswith(prefix)]
 
 for folder in folders:
+    plt.figure()
     with open(folder + "/history.json", "r") as f:
         json = eval(f.read())
         global_accuracy = json["accuracy"]
@@ -33,13 +34,13 @@ for folder in folders:
     plt.title("Metrics evolution - Centralized Evaluation - " + folder[folder.find("tion_") + 5:])
 
 
-plt.figure()
 
 prefix = "final_distributed_evaluation"
 
 folders = [folder for folder in os.listdir() if os.path.isdir(folder) and folder.startswith(prefix)]
 
 for folder in folders:
+    plt.figure()
     with open(folder + "/history.json", "r") as f:
         json = eval(f.read())
         global_accuracy = json["accuracy"]

@@ -10,7 +10,7 @@ import json
 from sklearn.preprocessing import MinMaxScaler
 
 
-def split_data(data, n, random_state=None):
+def split_data_random(data, n, random_state=None):
     np.random.seed(random_state)
     shuffled_indices = np.random.permutation(len(data))
     partition_size = len(data) // n
@@ -21,6 +21,11 @@ def split_data(data, n, random_state=None):
         data_parts.append(data.iloc[shuffled_indices[start:end]])
     return data_parts
 
+def split_data(data, sorted_index_lists):
+    data_parts = []
+    for sorted_index_list in sorted_index_lists:
+        data_parts.append(data.iloc[sorted_index_list])
+    return data_parts
 
 
 def preprocess_data(data):
@@ -64,14 +69,73 @@ if __name__ == "__main__":
 
     print("Shape :\n  - train : ", x_total_train.shape, "\n  - test : ", x_total_test.shape)
 
-    seed = 1534
+    # split data randomly
+    # seed = 1534
+    # x_train_parts = split_data_random(x_total_train, args.n, seed)
+    # y_train_parts = split_data_random(y_total_train, args.n, seed)
+    # x_test_parts = split_data_random(x_total_test, args.n, seed)
+    # y_test_parts = split_data_random(y_total_test, args.n, seed)
+    # m_train_parts = split_data_random(m_total_train, args.n, seed)
+    # m_test_parts = split_data_random(m_total_test, args.n, seed)
 
-    x_train_parts = split_data(x_total_train, args.n, seed)
-    y_train_parts = split_data(y_total_train, args.n, seed)
-    x_test_parts = split_data(x_total_test, args.n, seed)
-    y_test_parts = split_data(y_total_test, args.n, seed)
-    m_train_parts = split_data(m_total_train, args.n, seed)
-    m_test_parts = split_data(m_total_test, args.n, seed)
+    # split data by attack category
+    clients_special_distribution = {
+            "Normal": None,
+            "Fuzzers": [0, 0.5, 0.5],
+            "Analysis": None,
+            "Backdoors": None,
+            "DoS": None,
+            "Exploits": None,
+            "Generic": None,
+            "Reconnaissance": None,
+            "Shellcode": None,
+            "Worms": None
+        }
+    seed=13458
+    
+    # get the index of each attack category
+    attack_cat_index = {}
+    for i, attack_cat in enumerate(clients_special_distribution.keys()):
+        attack_cat_index[attack_cat] = np.array(m_total_train[m_total_train == attack_cat].index.tolist())
+    
+    # create n sorted_index list in function of the repartition in clients_special_distribution
+    sorted_index_lists = []
+    for i in range(args.n):
+        sorted_index_lists.append([])
+    for attack_cat in clients_special_distribution.keys():
+        if clients_special_distribution[attack_cat] is None:
+            # take len(attack_cat_index[attack_cat]))/args.n elements randomly and put each one into sorted_index_lists
+            np.random.seed(seed)
+            shuffled_indices = np.random.permutation(len(attack_cat_index[attack_cat]))
+            partition_size = math.ceil(len(attack_cat_index[attack_cat]) / args.n)
+            for i in range(args.n):
+                start = i * partition_size
+                end = (i + 1) * partition_size if i < args.n - 1 else len(attack_cat_index[attack_cat])
+                sorted_index_lists[i].extend(attack_cat_index[attack_cat][shuffled_indices[start:end]])
+        else:
+            # take len(attack_cat_index[attack_cat]))*clients_special_distribution[attack_cat][i] elements randomly and put each one into sorted_index_lists
+            partition_sizes = []
+            for i in range(args.n):
+                partition_sizes.append(math.ceil(len(attack_cat_index[attack_cat]) * clients_special_distribution[attack_cat][i]))
+            np.random.seed(seed)
+            np.random.shuffle(attack_cat_index[attack_cat])
+            for i in range(args.n):
+                start = sum(partition_sizes[:i])
+                end = sum(partition_sizes[:i+1]) if i < args.n - 1 else len(attack_cat_index[attack_cat])
+                sorted_index_lists[i].extend(attack_cat_index[attack_cat][start:end])
+    
+    for i in range(args.n):
+        sorted_index_lists[i] = np.array(sorted_index_lists[i])
+
+
+    x_train_parts = split_data(x_total_train, sorted_index_lists)
+    y_train_parts = split_data(y_total_train, sorted_index_lists)
+    x_test_parts = split_data_random(x_total_test, args.n, seed)
+    y_test_parts = split_data_random(y_total_test, args.n, seed)
+    m_train_parts = split_data_random(m_total_train, args.n, seed)
+    m_test_parts = split_data_random(m_total_test, args.n, seed)
+    
+
 
     print("\nExtracting and Preprocessing data for {} clients".format(args.n))
     for i in tqdm(range(args.n)):
