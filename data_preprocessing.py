@@ -81,9 +81,9 @@ if __name__ == "__main__":
     # split data by attack category
     clients_special_distribution = {
             "Normal": None,
-            "Fuzzers": [0, 0.5, 0.5],
+            "Fuzzers": None,
             "Analysis": None,
-            "Backdoors": None,
+            "Backdoor": [0, 0, 1],
             "DoS": None,
             "Exploits": None,
             "Generic": None,
@@ -93,18 +93,14 @@ if __name__ == "__main__":
         }
     seed=13458
     
-    # get the index of each attack category
     attack_cat_index = {}
     for i, attack_cat in enumerate(clients_special_distribution.keys()):
         attack_cat_index[attack_cat] = np.array(m_total_train[m_total_train == attack_cat].index.tolist())
-    
-    # create n sorted_index list in function of the repartition in clients_special_distribution
-    sorted_index_lists = []
-    for i in range(args.n):
-        sorted_index_lists.append([])
+
+    sorted_index_lists = [[] for _ in range(args.n)]
+
     for attack_cat in clients_special_distribution.keys():
         if clients_special_distribution[attack_cat] is None:
-            # take len(attack_cat_index[attack_cat]))/args.n elements randomly and put each one into sorted_index_lists
             np.random.seed(seed)
             shuffled_indices = np.random.permutation(len(attack_cat_index[attack_cat]))
             partition_size = math.ceil(len(attack_cat_index[attack_cat]) / args.n)
@@ -113,19 +109,26 @@ if __name__ == "__main__":
                 end = (i + 1) * partition_size if i < args.n - 1 else len(attack_cat_index[attack_cat])
                 sorted_index_lists[i].extend(attack_cat_index[attack_cat][shuffled_indices[start:end]])
         else:
-            # take len(attack_cat_index[attack_cat]))*clients_special_distribution[attack_cat][i] elements randomly and put each one into sorted_index_lists
-            partition_sizes = []
-            for i in range(args.n):
-                partition_sizes.append(math.ceil(len(attack_cat_index[attack_cat]) * clients_special_distribution[attack_cat][i]))
+            partition_sizes = [
+                math.ceil(len(attack_cat_index[attack_cat]) * val)
+                for val in clients_special_distribution[attack_cat]
+            ]
             np.random.seed(seed)
             np.random.shuffle(attack_cat_index[attack_cat])
             for i in range(args.n):
                 start = sum(partition_sizes[:i])
-                end = sum(partition_sizes[:i+1]) if i < args.n - 1 else len(attack_cat_index[attack_cat])
+                end = sum(partition_sizes[:i + 1])
                 sorted_index_lists[i].extend(attack_cat_index[attack_cat][start:end])
     
     for i in range(args.n):
         sorted_index_lists[i] = np.array(sorted_index_lists[i])
+    
+    # check if all the data is taken
+    total_index = np.concatenate(sorted_index_lists)
+    try:
+        assert len(np.unique(total_index)) == len(x_total_train)
+    except AssertionError as e:
+        print("WARNING : some data are not taken into account")
 
 
     x_train_parts = split_data(x_total_train, sorted_index_lists)

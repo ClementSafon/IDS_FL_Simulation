@@ -135,16 +135,16 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", help="output folder suffix", type=str, required=True)
-    parser.add_argument("-d", help="data_client folder", type=str, required=True)
+    parser.add_argument("-d", help="data_client_ folder suffix", type=str, required=True)
     args = parser.parse_args()
 
     BATCH_SIZE = 64
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 3
     VALIDATION_SPLIT = 0.2
-    NUM_ROUNDS = 10
+    NUM_ROUNDS = 3
     NUM_CLIENTS = 3
 
-    FINAL_DIR = "final_centralized_evaluation_" + args.o
+    FINAL_DIR = "final_ce_" + args.o
     FINAL_MODEL_PATH = "model.keras"
     FINAL_HISTORY_PATH = "history.json"
 

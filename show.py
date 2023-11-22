@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import os
 import os
 
-prefix = "final_centralized_evaluation"
+prefix = "final_ce"
 
 folders = [folder for folder in os.listdir() if os.path.isdir(folder) and folder.startswith(prefix)]
 
@@ -35,7 +35,7 @@ for folder in folders:
 
 
 
-prefix = "final_distributed_evaluation"
+prefix = "final_de"
 
 folders = [folder for folder in os.listdir() if os.path.isdir(folder) and folder.startswith(prefix)]
 

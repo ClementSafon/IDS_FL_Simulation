@@ -27,19 +27,19 @@ pip install -r requirements.txt
 ### Preprocess Data
 
 ```bash
-make data folder=random
+make data name=random
 ```
 
 ### Train with Federated Evaluation
 
 ```bash
-make run_fe folder=random data=data_client_random
+make run_de name=random data=random
 ```
 
 ### Train with Centralized Evaluation
 
 ```bash
-make run_ce folder=random data=data_client_random
+make run_ce name=random data=random
 ```
 
 ### Show Results
@@ -51,7 +51,7 @@ make show
 ### Eval Results
 
 ```bash
-make eval final=final_centralized_evaluation_random data=data_client_random
+make eval final=final_ce_random data=random
 ```
 
 # Warning

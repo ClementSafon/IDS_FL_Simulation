@@ -10,20 +10,22 @@ def get_model(model_path):
     return model
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dir_client", type=str, required=True)
-parser.add_argument("--dir_path", type=str, required=True)
+parser.add_argument("--data_client_dir", type=str, required=True)
+parser.add_argument("--final_path", type=str, required=True)
 args = parser.parse_args()
+
+data_folder_name = "data_client_" + args.data_client_dir
 
 # get the metadata
 m_test = np.array([])
-for file in os.listdir(args.dir_client):
-    m_test = np.append(m_test, get_m_data(args.dir_client + "/" + file)[1])
+for file in os.listdir(data_folder_name):
+    m_test = np.append(m_test, get_m_data(data_folder_name + "/" + file)[1])
 
 # get the testset
-testset = create_centralized_testset(args.dir_client)
+testset = create_centralized_testset(args.data_client_dir)
 
 # get the model
-model = get_model(args.dir_path + "/model.keras")
+model = get_model(args.final_path + "/model.keras")
 
 
 
