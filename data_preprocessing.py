@@ -67,7 +67,15 @@ if __name__ == "__main__":
     x_total_test = x_total_test.reindex(columns=x_total_train.columns, fill_value=0)
     y_total_test = y_total_test.reindex(columns=y_total_train.columns, fill_value=0)
 
-    print("Shape :\n  - train : ", x_total_train.shape, "\n  - test : ", x_total_test.shape)
+    print("Shape :")
+    print("  - train : ", x_total_train.shape)
+    print("    - Distribution :")
+    print("                 " + str(len(m_total_train[m_total_train == "Normal"])) + " Normal (" + str(round(100*len(m_total_train[m_total_train == "Normal"])/len(m_total_train))) + "%)")
+    print("                 " + str(len(m_total_train[m_total_train != "Normal"])) + " Malicious (" + str(round(100*len(m_total_train[m_total_train != "Normal"])/len(m_total_train))) + "%)")
+    print("  - test : ", x_total_test.shape)
+    print("    - Distribution :")
+    print("                 " + str(len(m_total_test[m_total_test == "Normal"])) + " Normal (" + str(round(100*len(m_total_test[m_total_test == "Normal"])/len(m_total_test))) + "%)")
+    print("                 " + str(len(m_total_test[m_total_test != "Normal"])) + " Malicious (" + str(round(100*len(m_total_test[m_total_test != "Normal"])/len(m_total_test))) + "%)")
 
     # split data randomly
     # seed = 1534
@@ -83,7 +91,7 @@ if __name__ == "__main__":
             "Normal": None,
             "Fuzzers": None,
             "Analysis": None,
-            "Backdoor": [0, 0, 1],
+            "Backdoor": [0, 0, 0],
             "DoS": None,
             "Exploits": None,
             "Generic": None,
@@ -133,9 +141,9 @@ if __name__ == "__main__":
 
     x_train_parts = split_data(x_total_train, sorted_index_lists)
     y_train_parts = split_data(y_total_train, sorted_index_lists)
+    m_train_parts = split_data(m_total_train, sorted_index_lists)
     x_test_parts = split_data_random(x_total_test, args.n, seed)
     y_test_parts = split_data_random(y_total_test, args.n, seed)
-    m_train_parts = split_data_random(m_total_train, args.n, seed)
     m_test_parts = split_data_random(m_total_test, args.n, seed)
     
 
