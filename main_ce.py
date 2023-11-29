@@ -8,7 +8,7 @@ import numpy as np
 import tensorflow as tf
 from flwr.common import Metrics
 from numpy.typing import ArrayLike, NDArray
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
 from flwr.simulation.ray_transport.utils import enable_tf_gpu_growth
 from tensorflow import keras
 from flwr.common import ndarrays_to_parameters
@@ -27,11 +27,13 @@ from utils import (
 def get_model() -> keras.Model:
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.Dense(64, activation="relu", input_shape=(n_features,)),
+            tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
-            tf.keras.layers.Dense(2, activation="softmax"),
+            tf.keras.layers.Dense(64, activation="relu"),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(10, activation="softmax"),
         ]
     )
 
@@ -65,17 +67,15 @@ def get_evaluate_fn(testset):
         y_pred = np.argmax(np.round(inferences), axis=1)
         y_true = np.argmax(y_test, axis=1)
 
-        cm = confusion_matrix(y_true, y_pred)
-        tn, fp, fn, tp = cm.ravel()
+        report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
 
         return (
             loss,
             {
-                "accuracy": (tn + tp) / (tn + fp + fn + tp),
-                "precision": tp / (tp + fp),
-                "recall": tp / (tp + fn),
-                "f1": 2 * tp / (2 * tp + fp + fn),
-                "miss_rate": fn / (fn + tp),
+                "accuracy": report['accuracy'],
+                "precision": report['macro avg']['precision'],
+                "recall": report['macro avg']['recall'],
+                "f1-score": report['macro avg']['f1-score'],
             },
         )
     
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     BATCH_SIZE = 64
-    NUM_EPOCHS = 3
+    NUM_EPOCHS = 2
     VALIDATION_SPLIT = 0.2
     NUM_ROUNDS = 3
     NUM_CLIENTS = 3

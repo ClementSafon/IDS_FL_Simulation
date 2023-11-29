@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from tqdm import tqdm
+import re
+
 
 def count_true_false_repartition(n: int):
 
@@ -93,8 +96,196 @@ def create_datasets_with_ip():
     for ip in ip_list:
         print(ip)
 
+def tmp():
+    # take x y m data from .npz file
+    data = np.load("data_client_no_analysis/party0.npz")
+    x_train = data['x_train']
+    y_train = data['y_train']
+
+    for i in range(y_train.shape[1]):
+        print(np.unique(y_train[:,i]))
+
+def count_labels():
+    features = pd.read_csv("dataset/UNSW-NB15/NUSW-NB15_features.csv", encoding='latin-1')
+    c_names = features['Name'].to_list()
+    c_types = features['Type '].to_list()
+
+    # replace "nominal" by "string"
+    for i in range(len(c_types)):
+        if c_types[i] == "nominal":
+            c_types[i] = "string"
+    # replace "integer" or "Integer" by "int64"
+    for i in range(len(c_types)):
+        if c_types[i] == "integer" or c_types[i] == "Integer":
+            c_types[i] = "string"
+    # replace "Float" by "float64"
+    for i in range(len(c_types)):
+        if c_types[i] == "Float" or c_types[i] == "Timestamp":
+            c_types[i] = "float"
+    # replace "binary" by "bool"
+    for i in range(len(c_types)):
+        if c_types[i] == "binary" or c_types[i] == "Binary":
+            c_types[i] = "string"
+
+    sizes = {}
+
+    for i in tqdm(range(1,5)):
+        content = pd.read_csv("dataset/UNSW-NB15/UNSW-NB15_"+str(i)+".csv", names=c_names, dtype=dict(zip(c_names, c_types)))
+        labels = content['attack_cat'].unique()
+
+        for i in range(len(labels)):
+            if labels[i] is not pd.NA:
+                labels[i] = labels[i].strip()
+                if labels[i] not in sizes.keys():
+                    sizes[labels[i]] = 0
+            else:
+                labels[i] = "Normal"
+                if "Normal" not in sizes.keys():
+                    sizes["Normal"] = 0
+            
+
+        for label in labels:
+            if label == "Normal":
+                sizes[label] += len(content[content['Label'] == "0"])
+            else:
+                content['attack_cat'] = content['attack_cat'].apply(lambda x: x.strip() if isinstance(x, str) else x)
+                sizes[label] += len(content[content['attack_cat']== label])
+   
+    total = 0
+    for key in sizes.keys():
+        total += sizes[key]
+
+    print("{")
+    for key in sizes.keys():
+        print("    \""+key+"\": "+str(sizes[key])+" ("+str(round(100*sizes[key]/total, 2))+"%),")
+
+    print("}")
+
+def count_labels2():
+    data = pd.read_csv("dataset/UNSW-NB15/a part of training and testing set/UNSW_NB15_training-set.csv", encoding='latin-1')
+    labels = data['attack_cat'].unique()
+
+    sizes = {}
+
+    for i in range(len(labels)):
+        labels[i] = labels[i].strip()
+        if labels[i] not in sizes.keys():
+            sizes[labels[i]] = 0
+    
+    for label in labels:
+        sizes[label] = len(data[data['attack_cat']== label])
+
+    total = 0
+    for key in sizes.keys():
+        total += sizes[key]
+
+    print("{")
+    for key in sizes.keys():
+        print("    \""+key+"\": "+str(sizes[key])+" ("+str(round(100*sizes[key]/total, 2))+"%),")
+
+    print("}")
+    data = pd.read_csv("dataset/UNSW-NB15/a part of training and testing set/UNSW_NB15_testing-set.csv", encoding='latin-1')
+    labels = data['attack_cat'].unique()
+
+    sizes = {}
+
+    for i in range(len(labels)):
+        labels[i] = labels[i].strip()
+        if labels[i] not in sizes.keys():
+            sizes[labels[i]] = 0
+    
+    for label in labels:
+        sizes[label] = len(data[data['attack_cat']== label])
+
+    total = 0
+    for key in sizes.keys():
+        total += sizes[key]
+
+    print("{")
+    for key in sizes.keys():
+        print("    \""+key+"\": "+str(sizes[key])+" ("+str(round(100*sizes[key]/total, 2))+"%),")
+
+    print("}")
+
+def display_features():
+    features = pd.read_csv("dataset/UNSW-NB15/NUSW-NB15_features.csv", encoding='latin-1')
+    c_names = features['Name'].to_list()
+
+    
+    usefull_features = pd.read_csv("dataset/UNSW-NB15/a part of training and testing set/UNSW_NB15_training-set.csv", encoding='latin-1')
+    usefull_features = usefull_features.columns.to_list()
+
+    for i in range(len(usefull_features)):
+        usefull_features[i] = usefull_features[i].strip().lower()
+    for i in range(len(c_names)):
+        c_names[i] = c_names[i].strip().lower()
+
+    print("{")
+    for i in range(len(c_names)):
+        if c_names[i] in usefull_features:
+            print("     " + c_names[i]+", "+c_names[i]+",")
+        else:
+            print("     "+c_names[i]+", --- ,")
+    print("}")
+
+def plot_figs():
+    # Open the markdown file and read its content
+    with open('notes.md', 'r') as file:
+        data = file.read()
+
+    # Use regular expressions to find the data blocks that look like dictionaries
+    pattern = re.compile(r'\{(.*?)(\})', re.DOTALL)
+    matches = pattern.findall(data)
+
+    matches.remove(matches[1])
+
+    # Parse these blocks to create Python dictionaries
+    dictionaries = []
+    for match in matches:
+        dict_data = match[0].split('\n')
+        dict_data = [item.strip().split(':') for item in dict_data if item.strip()]
+        dictionary = {item[0].strip('\"'): int(item[1].split()[0]) for item in dict_data}
+        dictionaries.append(dictionary)
+    
+
+
+    # Use matplotlib to plot the data from these dictionaries
+    for i, dictionary in enumerate(dictionaries):
+        keys = sorted(dictionary.keys())
+        values = [dictionary[key] for key in keys]
+        if i == 0:
+            plt.figure(i)
+            plt.bar(keys, values)
+            plt.xticks(rotation=90)
+            plt.title(f'UNSW-NB15 Data Distribution')
+            plt.tight_layout()
+        elif i == 1:
+            plt.figure(i)
+            plt.bar(keys, values, label='Training set')
+            plt.xticks(rotation=90)
+            plt.title('UNSW-NB15 (example) Data Distribution')
+            plt.tight_layout()
+            plt.legend()
+        elif i == 2:
+            plt.figure(i-1)
+            prev_values = [dictionaries[i-1][key] for key in keys]
+            plt.bar(keys, values, bottom=prev_values, label='Testing set')
+            plt.xticks(rotation=90)
+            plt.title('UNSW-NB15 (example) Data Distribution')
+            plt.tight_layout()
+            plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
-    count_true_false_repartition(3)
+    # count_true_false_repartition(3)
 
     # stat_ip()
+
+    # tmp()
+
+    # count_labels()
+    # count_labels2()
+
+    # display_features()
+
+    plot_figs()

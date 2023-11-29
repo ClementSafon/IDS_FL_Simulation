@@ -1,3 +1,4 @@
+from sklearn.metrics import classification_report
 from utils import get_m_data, create_centralized_testset
 import numpy as np
 import pandas as pd
@@ -63,8 +64,10 @@ print(ret)
 print("")
 print("Metrics:")
 
-print("accuracy: ", (y_true == y_pred).sum() / len(y_true))
-print("recall: ", (y_true & y_pred).sum() / y_true.sum())
-print("precision: ", (y_true & y_pred).sum() / y_pred.sum())
-print("missed: ", (y_true & ~y_pred).sum() / y_true.sum())
-print("f1: ", 2 * (y_true & y_pred).sum() / (y_true.sum() + y_pred.sum()))
+report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
+
+print("Accuracy: ", report["accuracy"])
+print("Precision: ", report["macro avg"]["precision"])
+print("Recall: ", report["macro avg"]["recall"])
+print("F1-score: ", report["macro avg"]["f1-score"])
+print("")

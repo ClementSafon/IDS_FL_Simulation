@@ -39,8 +39,7 @@ def preprocess_data(data):
     scaler.fit(x_data)
     x_data[x_data.columns] = scaler.transform(x_data)
 
-    y_data = m_data.apply(lambda x: False if x == "Normal" else True)
-    y_data = pd.get_dummies(y_data, prefix="Malicious")
+    y_data = pd.get_dummies(m_data)
 
     return x_data, y_data, m_data
 
@@ -67,34 +66,15 @@ if __name__ == "__main__":
     x_total_test = x_total_test.reindex(columns=x_total_train.columns, fill_value=0)
     y_total_test = y_total_test.reindex(columns=y_total_train.columns, fill_value=0)
 
-    print("Shape :")
-    print("  - train : ", x_total_train.shape)
-    print("    - Distribution :")
-    print("                 " + str(len(m_total_train[m_total_train == "Normal"])) + " Normal (" + str(round(100*len(m_total_train[m_total_train == "Normal"])/len(m_total_train))) + "%)")
-    print("                 " + str(len(m_total_train[m_total_train != "Normal"])) + " Malicious (" + str(round(100*len(m_total_train[m_total_train != "Normal"])/len(m_total_train))) + "%)")
-    print("  - test : ", x_total_test.shape)
-    print("    - Distribution :")
-    print("                 " + str(len(m_total_test[m_total_test == "Normal"])) + " Normal (" + str(round(100*len(m_total_test[m_total_test == "Normal"])/len(m_total_test))) + "%)")
-    print("                 " + str(len(m_total_test[m_total_test != "Normal"])) + " Malicious (" + str(round(100*len(m_total_test[m_total_test != "Normal"])/len(m_total_test))) + "%)")
-
-    # split data randomly
-    # seed = 1534
-    # x_train_parts = split_data_random(x_total_train, args.n, seed)
-    # y_train_parts = split_data_random(y_total_train, args.n, seed)
-    # x_test_parts = split_data_random(x_total_test, args.n, seed)
-    # y_test_parts = split_data_random(y_total_test, args.n, seed)
-    # m_train_parts = split_data_random(m_total_train, args.n, seed)
-    # m_test_parts = split_data_random(m_total_test, args.n, seed)
-
     # split data by attack category
     clients_special_distribution = {
-            "Normal": None,
-            "Fuzzers": None,
-            "Analysis": None,
-            "Backdoor": [0, 0, 0],
+            "Normal": [0,0,0],
+            "Fuzzers": [0,0,0],
+            "Analysis": [0,0,0],
+            "Backdoor": None,
             "DoS": None,
-            "Exploits": None,
-            "Generic": None,
+            "Exploits": [0,0,0],
+            "Generic": [0,0,0],
             "Reconnaissance": None,
             "Shellcode": None,
             "Worms": None
@@ -145,6 +125,19 @@ if __name__ == "__main__":
     x_test_parts = split_data_random(x_total_test, args.n, seed)
     y_test_parts = split_data_random(y_total_test, args.n, seed)
     m_test_parts = split_data_random(m_total_test, args.n, seed)
+
+
+    for i in range(args.n):
+        print("Client "+str(i)+" :")
+        print("  - train : ", x_train_parts[i].shape)
+        print("    - Distribution :")
+        for attack_cat in m_train_parts[i].unique():
+            print("                 " + str(len(m_train_parts[i][m_train_parts[i] == attack_cat])) + " " + attack_cat + " (" + str(round(100*len(m_train_parts[i][m_train_parts[i] == attack_cat])/len(m_train_parts[i]))) + "%)")
+
+    print("  - test : ", x_test_parts[i].shape)
+    print("    - Distribution :")
+    for attack_cat in m_test_parts[i].unique():
+        print("                 " + str(len(m_test_parts[i][m_test_parts[i] == attack_cat])) + " " + attack_cat + " (" + str(round(100*len(m_test_parts[i][m_test_parts[i] == attack_cat])/len(m_test_parts[i]))) + "%)")
     
 
 

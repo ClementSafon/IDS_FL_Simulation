@@ -13,8 +13,8 @@ for folder in folders:
         global_accuracy = json["accuracy"]
         global_precision = json["precision"]
         global_recall = json["recall"]
-        global_f1 = json["f1"]
-        global_miss_rate = json["miss_rate"]
+        global_f1 = json["f1-score"]
+        # global_miss_rate = json["miss_rate"]
 
     round = [data[0] for data in global_accuracy]
     acc = [100.0 * data[1] for data in global_accuracy]
