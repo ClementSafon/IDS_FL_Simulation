@@ -8,6 +8,7 @@ Clément S., Sarah R.
 
 > With IoT systems spreading across all the different domains and aspects of our lives for the past few years, attacks on these devices have likewise seen a rise. 
 
+TEST
 
 ## I. Introduction 
 
@@ -32,7 +33,7 @@ After the clients train their models, updated model parameters are sent to the s
 By only exchanging weight parameters instead of raw data, this process is inherently privacy-preserving. However, this scheme is not fully safeguarded against all types of malicious attacks: different attacks, such as _Membership inference_ for example. \
 Notwithstanding, 
 
-Our Intrusion Detection System is a behavior-based IDS. In other words, 
+Our Intrusion Detection System is a behavior-based IDS. In other words, the IDS 
 ## Dataset presentation
 
 The dataset on which this project is based is the UNSW-NB15 dataset. Before this dataset, two others were largely looked upon: KDDCUP99 and NSLKDD. However, these two datasets were outdated, and not representative of the [[1]](#1)
@@ -96,7 +97,7 @@ Zoghi, Zeinab & Serpen, Gursel. ([2021](https://arxiv.org/abs/2101.05067)).
 Visualization.*
 Electrical Engineering & Computer Science, University of Toledo, Ohio, USA.
 
-<a id="3">[3]</a>
+<a id="3">[3]</a> Ajout
 
 
 <a id="4">[4]</a> 
