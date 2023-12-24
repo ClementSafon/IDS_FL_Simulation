@@ -216,7 +216,7 @@ def display_features():
     c_names = features['Name'].to_list()
 
     
-    usefull_features = pd.read_csv("dataset/UNSW-NB15/a part of training and testing set/UNSW_NB15_training-set.csv", encoding='latin-1')
+    usefull_features = pd.read_csv("dataset/UNSW-NB15/custom_UNSW-NB15.csv", encoding='latin-1')
     usefull_features = usefull_features.columns.to_list()
 
     for i in range(len(usefull_features)):
@@ -279,7 +279,6 @@ def plot_figs():
             plt.tight_layout()
             plt.legend()
     plt.show()
-
 
 def mahalanobis_distance():
     data = pd.read_csv("dataset/UNSW-NB15/a part of training and testing set/UNSW_NB15_testing-set.csv", encoding='latin-1')
@@ -351,6 +350,20 @@ def mahalanobis_distance():
     plt.title('Mahalanobis distances between centroids')
     plt.show()
 
+
+def attack_cat_plot():
+    csv_file = "dataset/UNSW-NB15/custom_UNSW-NB15.csv"
+    data = pd.read_csv(csv_file, encoding='latin-1')
+    plt.figure(figsize=(10, 6))
+    sns.countplot(data=data, x='attack_cat')
+    plt.xlabel('Attack Category')
+    plt.ylabel('Count')
+    plt.title('Number of Instances per Attack Category')
+    plt.xticks(rotation=45)
+    plt.show()
+    
+
+
 if __name__ == "__main__":
     # count_true_false_repartition(3)
 
@@ -365,4 +378,6 @@ if __name__ == "__main__":
 
     # plot_figs()
 
-    mahalanobis_distance()
+    # mahalanobis_distance()
+
+    attack_cat_plot()
