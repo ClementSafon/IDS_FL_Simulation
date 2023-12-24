@@ -7,7 +7,7 @@ from tqdm import tqdm
 import math
 import json
 
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 
 
 def split_data_random(data, n, random_state=None):
@@ -35,11 +35,17 @@ def preprocess_data(data):
 
     x_data = pd.get_dummies(data)
 
-    scaler = MinMaxScaler()
-    scaler.fit(x_data)
+    ### Normalization
+    # scaler = MinMaxScaler()
+    # scaler.fit(x_data)
+    # x_data[x_data.columns] = scaler.transform(x_data)
+
+    scaler = QuantileTransformer()
+    scaler.fit_transform(x_data)
     x_data[x_data.columns] = scaler.transform(x_data)
 
     y_data = pd.get_dummies(m_data)
+    y_data = y_data.sort_index(axis=1)
 
     return x_data, y_data, m_data
 
@@ -68,13 +74,13 @@ if __name__ == "__main__":
 
     # split data by attack category
     clients_special_distribution = {
-            "Normal": [0,0,0],
-            "Fuzzers": [0,0,0],
-            "Analysis": [0,0,0],
+            "Normal": None,
+            "Fuzzers": None,
+            "Analysis": None,
             "Backdoor": None,
             "DoS": None,
-            "Exploits": [0,0,0],
-            "Generic": [0,0,0],
+            "Exploits": None,
+            "Generic": None,
             "Reconnaissance": None,
             "Shellcode": None,
             "Worms": None

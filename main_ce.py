@@ -14,22 +14,28 @@ from tensorflow import keras
 from flwr.common import ndarrays_to_parameters
 from flwr.server.strategy import FedAvg
 import argparse
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.utils import class_weight
 
 from utils import (
     create_partition,
     create_centralized_testset,
+    get_m_data,
 )
 
 # print("TensorFlow version:", tf.__version__)
 # print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
 # enable_tf_gpu_growth()
 
-def get_model() -> keras.Model:
+def get_model() -> tf.keras.Model:
     model = tf.keras.models.Sequential(
         [
             tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
             tf.keras.layers.Dropout(0.5),
-            tf.keras.layers.Dense(64, activation="relu"),
+            tf.keras.layers.Dense(256, activation="relu"),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
@@ -37,11 +43,18 @@ def get_model() -> keras.Model:
         ]
     )
 
+    # Index(['Analysis', 'Backdoor', 'DoS', 'Exploits', 'Fuzzers', 'Generic',
+    #    'Normal', 'Reconnaissance', 'Shellcode', 'Worms'],
+    #   dtype='object')
+    
+    custom_adam_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+
     model.compile(
-        loss="categorical_crossentropy",
-        optimizer="adam",
+        loss='categorical_crossentropy',
+        optimizer=custom_adam_optimizer,
         metrics=["accuracy"],
     )
+
     return model
 
 def get_evaluate_fn(testset):
@@ -100,6 +113,7 @@ class FlowerClient(flwr.client.NumPyClient):
             batch_size=BATCH_SIZE,
             validation_split=VALIDATION_SPLIT,
             verbose=cast(str, 0),
+            class_weight=weights
         )
         return self.model.get_weights(), len(self.x_train), {}
 
@@ -139,17 +153,25 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     BATCH_SIZE = 64
-    NUM_EPOCHS = 2
+    NUM_EPOCHS = 1000
     VALIDATION_SPLIT = 0.2
-    NUM_ROUNDS = 3
+    NUM_ROUNDS = 1
     NUM_CLIENTS = 3
 
     FINAL_DIR = "final_ce_" + args.o
+    DATA_DIR = "data_client_" + args.d
     FINAL_MODEL_PATH = "model.keras"
     FINAL_HISTORY_PATH = "history.json"
 
     testset = create_centralized_testset(args.d)
     partitions = create_partition(args.d)
+
+    #Calculate weights for the loss function
+    m = []
+    for i in testset[1]:
+        m.append(np.argmax(i))
+    weights = class_weight.compute_class_weight('balanced', classes=np.unique(m), y=m)
+    weights = dict(enumerate(weights))
 
     n_features = testset[0].shape[1]
     
@@ -189,3 +211,36 @@ if __name__ == "__main__":
     # Save history
     with open(FINAL_HISTORY_PATH, "w") as f:
         f.write(str(history.metrics_centralized))
+    
+    # Eval the model
+    X, y = testset
+    
+    m_test = np.array([])
+    for file in os.listdir("../" + DATA_DIR):
+        m_test = np.append(m_test, get_m_data("../" + DATA_DIR + "/" + file)[1])
+    m = m_test
+    m_unique = np.unique(m)
+
+    model = get_model()
+    model.load_weights(FINAL_MODEL_PATH)
+    
+    inferences = model.predict(X)
+    y_pred = np.argmax(np.round(inferences), axis=1)
+    y_true = np.argmax(y, axis=1)
+
+
+    conf_matrix = confusion_matrix(y_true, y_pred)
+
+    # Visualize the confusion matrix as a heatmap
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False, xticklabels=m_unique, yticklabels=m_unique)
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title('Confusion Matrix')
+
+    report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
+
+    with open("metrics.json", "w") as f:
+        f.write(str(report))
+
+    plt.savefig("confusion_matrix.png")

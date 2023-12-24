@@ -3,6 +3,10 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 import re
+from numpy.linalg import inv
+from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
+import seaborn as sns
+from scipy.linalg import pinv
 
 
 def count_true_false_repartition(n: int):
@@ -276,6 +280,77 @@ def plot_figs():
             plt.legend()
     plt.show()
 
+
+def mahalanobis_distance():
+    data = pd.read_csv("dataset/UNSW-NB15/a part of training and testing set/UNSW_NB15_testing-set.csv", encoding='latin-1')
+    data = data.drop(['ï»¿id', 'label'], axis=1)
+    
+    attack_cat_encoded = pd.get_dummies(data['attack_cat'])
+
+    data_encoded = pd.concat([data.drop('attack_cat', axis=1), attack_cat_encoded], axis=1)
+    data_encoded = pd.get_dummies(data_encoded)
+
+    ### Normalization
+    # scaler = MinMaxScaler()
+    # scaler.fit(data_encoded)
+    # data_encoded[data_encoded.columns] = scaler.transform(data_encoded)
+
+    scaler = QuantileTransformer()
+    data_encoded_norm = scaler.fit_transform(data_encoded)
+    data_encoded = pd.DataFrame(data_encoded_norm, columns=data_encoded.columns)
+
+
+    # Calculate centroids for each class
+    centroids = {}
+    for column in attack_cat_encoded.columns:
+        encoded_rows = data_encoded[data_encoded[column] == True].copy()
+        encoded_rows = encoded_rows.drop(attack_cat_encoded.columns, axis=1)
+        centroids[column] = encoded_rows.mean()
+    centroids = pd.DataFrame(centroids).T
+
+    # Get the encoded data for each class
+    data_encoded_by_class = {}
+    for column in attack_cat_encoded.columns:
+        data_encoded_by_class[column] = data_encoded[data_encoded[column] == True]
+        data_encoded_by_class[column] = data_encoded_by_class[column].drop(attack_cat_encoded.columns, axis=1)
+
+
+    print("Centroids:")
+    print(centroids)
+    print("")
+    
+
+    def mahalanobis(x, data):
+        x = np.array(x).reshape(1, -1)
+        x_minus_mu = x - np.mean(data)
+        try:
+            cov = np.cov(data.T)
+            inv_covmat = np.linalg.inv(cov)
+        except np.linalg.LinAlgError:
+            print("Singular matrix - Computing pseudo-cov inv")
+            cov = np.cov(data.T) + 1e-8*np.eye(data.shape[1])  
+            inv_covmat = np.linalg.inv(cov)
+        # cov = np.cov(data.T)
+        # inv_covmat = pinv(cov)
+        left_term = np.dot(x_minus_mu, inv_covmat)
+        mahal = np.dot(left_term, x_minus_mu.T)
+        return mahal.diagonal()
+
+    distances = pd.DataFrame(index=centroids.index, columns=centroids.index)
+
+    for index, i in enumerate(centroids.index):
+        for j in centroids.index[index+1:]:
+            distances.loc[i, j] = mahalanobis(centroids.loc[i], data_encoded_by_class[j])
+
+    print(distances)
+
+    distances = distances.T.astype(float)
+    distances = distances / distances.max().max()
+
+    sns.heatmap(distances, cmap='viridis')
+    plt.title('Mahalanobis distances between centroids')
+    plt.show()
+
 if __name__ == "__main__":
     # count_true_false_repartition(3)
 
@@ -288,4 +363,6 @@ if __name__ == "__main__":
 
     # display_features()
 
-    plot_figs()
+    # plot_figs()
+
+    mahalanobis_distance()

@@ -18,58 +18,59 @@ The data distribution :
 
 ![UNSW-NB15](./img/UNSW-NB15_Data_Distribution.png)
 
-The initial features (and those that are used in the example):
+The initial features (and those that are used in the example, and the ones used in the article izualisation):
 
     {
-        srcip, --- ,
-        sport, --- ,
-        dstip, --- ,
-        dsport, --- ,
-        proto, proto,
-        state, state,
-        dur, dur,
-        sbytes, sbytes,
-        dbytes, dbytes,
-        sttl, sttl,
-        dttl, dttl,
-        sloss, sloss,
-        dloss, dloss,
-        service, service,
-        sload, sload,
-        dload, dload,
-        spkts, spkts,
-        dpkts, dpkts,
-        swin, swin,
-        dwin, dwin,
-        stcpb, stcpb,
-        dtcpb, dtcpb,
-        smeansz, --- ,
-        dmeansz, --- ,
-        trans_depth, trans_depth,
-        res_bdy_len, --- ,
-        sjit, sjit,
-        djit, djit,
-        stime, --- ,
-        ltime, --- ,
-        sintpkt, --- ,
-        dintpkt, --- ,
-        tcprtt, tcprtt,
-        synack, synack,
-        ackdat, ackdat,
-        is_sm_ips_ports, is_sm_ips_ports,
-        ct_state_ttl, ct_state_ttl,
-        ct_flw_http_mthd, ct_flw_http_mthd,
-        is_ftp_login, is_ftp_login,
-        ct_ftp_cmd, ct_ftp_cmd,
-        ct_srv_src, ct_srv_src,
-        ct_srv_dst, ct_srv_dst,
-        ct_dst_ltm, ct_dst_ltm,
-        ct_src_ ltm, --- ,
-        ct_src_dport_ltm, ct_src_dport_ltm,
-        ct_dst_sport_ltm, ct_dst_sport_ltm,
-        ct_dst_src_ltm, ct_dst_src_ltm,
-        attack_cat, attack_cat,
-        label, label,
+        srcip, --- , ---
+        sport, --- , ---
+        dstip, --- , ---
+        dsport, --- , ---
+        proto, proto, proto
+        state, state, state
+        dur, dur, dur
+        sbytes, sbytes, sbytes
+        dbytes, dbytes, dbytes
+        rate, rate, rate
+        sttl, sttl, sttl
+        dttl, dttl, dttl
+        sloss, sloss, sloss
+        dloss, dloss, dloss
+        service, service, service
+        sload, sload, sload
+        dload, dload, dload
+        spkts, spkts, spkts
+        dpkts, dpkts, dpkts
+        swin, swin, swin
+        dwin, dwin, dwin
+        stcpb, stcpb, stcpb
+        dtcpb, dtcpb, dtcpb
+        smeansz, --- , ---
+        dmeansz, --- , ---
+        trans_depth, trans_depth, ---
+        res_bdy_len, --- , ---
+        sjit, sjit, sjit
+        djit, djit, djit
+        stime, --- , ---
+        ltime, --- , ---
+        sintpkt, --- , sintpkt
+        dintpkt, --- , dintpkt
+        tcprtt, tcprtt, tcprtt
+        synack, synack, ---
+        ackdat, ackdat, ---
+        is_sm_ips_ports, is_sm_ips_ports, ---
+        ct_state_ttl, ct_state_ttl, ---
+        ct_flw_http_mthd, ct_flw_http_mthd, ---
+        is_ftp_login, is_ftp_login, ---
+        ct_ftp_cmd, ct_ftp_cmd, ---
+        ct_srv_src, ct_srv_src, ---
+        ct_srv_dst, ct_srv_dst, ---
+        ct_dst_ltm, ct_dst_ltm, ---
+        ct_src_ ltm, --- , ---
+        ct_src_dport_ltm, ct_src_dport_ltm, ---
+        ct_dst_sport_ltm, ct_dst_sport_ltm, ---
+        ct_dst_src_ltm, ct_dst_src_ltm, ---
+        attack_cat, attack_cat, attack_cat
+        label, label, label
     }
 
 # UNSW-NB15 Example dataset :
