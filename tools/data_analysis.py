@@ -391,6 +391,6 @@ if __name__ == "__main__":
 
     # mahalanobis_distance()
 
-    # attack_cat_plot()
+    attack_cat_plot()
 
-    tmp()
+    # tmp()

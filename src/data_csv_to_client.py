@@ -191,10 +191,16 @@ def plot_data_distribution(n: int, folder_name: str) -> None:
         for j in range(len(m_unique)):
             train_counts.append(np.count_nonzero(y_train[:, j]))
             test_counts.append(np.count_nonzero(y_test[:, j]))
-        axs[i].set_title("Client " + str(i))
-        axs[i].bar(m_unique, train_counts, label="train")
-        axs[i].bar(m_unique, test_counts, label="test")
-        axs[i].legend()
+        if n > 1:
+            axs[i].set_title("Client " + str(i))
+            axs[i].bar(m_unique, train_counts, label="train")
+            axs[i].bar(m_unique, test_counts, label="test")
+            axs[i].legend()
+        else:
+            axs.set_title("Client " + str(i))
+            axs.bar(m_unique, train_counts, label="train")
+            axs.bar(m_unique, test_counts, label="test")
+            axs.legend()
 
     plt.savefig(folder_name + "/data_distribution.png")
 
