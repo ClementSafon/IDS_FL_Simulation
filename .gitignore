@@ -11,3 +11,6 @@ dataset/
 data_client_*/
 final_*
 
+# Ignore config files
+config_*
+!config_example.yaml

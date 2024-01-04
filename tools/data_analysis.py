@@ -370,7 +370,10 @@ def attack_cat_plot():
     plt.xticks(rotation=45)
     plt.show()
     
-
+def tmp():
+    f = np.load("data_client_config_1/party0.npz")
+    
+    print(f["x_test"])
 
 if __name__ == "__main__":
     # count_true_false_repartition(3)
@@ -388,4 +391,6 @@ if __name__ == "__main__":
 
     # mahalanobis_distance()
 
-    attack_cat_plot()
+    # attack_cat_plot()
+
+    tmp()

@@ -43,7 +43,7 @@ def get_m_data(file_name: str) -> list[np.ndarray, np.ndarray]:
         raise IOError("Unable to load training data from path " "provided in config file: " + file_name)
     return [m_train, m_test]
 
-def create_partition(dir_suffix: str) -> list[tuple[np.ndarray, np.ndarray]]:
+def create_partition(dir_name: str) -> list[tuple[np.ndarray, np.ndarray]]:
     """
     Create a list with the data for each client
     :param NUM_CLIENTS: number of clients
@@ -52,27 +52,27 @@ def create_partition(dir_suffix: str) -> list[tuple[np.ndarray, np.ndarray]]:
     - partitions = [(x_train, y_train, x_test, y_test), ...]
     """
     partitions = []
-    dir_name = "data_client_" + dir_suffix
     for file in os.listdir(dir_name):
-        data = get_data(dir_name + "/" + file)
-        partitions.append(data)
-    print("Partitions created !")
+        if file.endswith(".npz"):
+            data = get_data(dir_name + "/" + file)
+            partitions.append(data)
+    # print("Partitions created !")
     return partitions
 
-def create_centralized_testset(dir_suffix: str) -> tuple[np.ndarray, np.ndarray]:
+def create_centralized_testset(dir_name: str) -> tuple[np.ndarray, np.ndarray]:
     """
     Create a centralized testset for the aggregator.
     :param NUM_CLIENTS: number of clients
     :return: centralized testset in the following format:
     - testset = (x_test, y_test)
     """
-    dir_name = "data_client_" + dir_suffix
     for i, file in enumerate(os.listdir(dir_name)):
-        data = get_data(dir_name + "/" + file)
-        if i == 0:
-            testset = data[2:4]
-        else:
-            testset[0] = np.concatenate((testset[0], data[2]))
-            testset[1] = np.concatenate((testset[1], data[3]))
-    print("Centralized testset created !")
+        if file.endswith(".npz"):
+            data = get_data(dir_name + "/" + file)
+            if i == 0:
+                testset = data[2:4]
+            else:
+                testset[0] = np.concatenate((testset[0], data[2]))
+                testset[1] = np.concatenate((testset[1], data[3]))
+    # print("Centralized testset created !")
     return testset

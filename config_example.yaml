@@ -1,0 +1,27 @@
+# Aggregator configuration
+evaluation_type: 'centralized' # or 'decentralized'
+num_clients: 3
+num_rounds: 1
+
+# Dataset configuration
+data_name: 'example'
+dataset_folder: 'UNSW-NB15/custom'
+train_filename: 'UNSW-NB15_training.csv'
+test_filename: 'UNSW-NB15_testing.csv'
+seed: 1234
+
+# Clients configuration
+clients_special_distribution:
+  Normal: ""
+  Fuzzers: ""
+  Analysis: ""
+  Backdoor: ""
+  DoS: ""
+  Exploits: ""
+  Generic: ""
+  Reconnaissance: ""
+  Shellcode: ""
+  Worms: ""
+batch_size: 64
+num_epochs: 5
+validation_split: 0.2

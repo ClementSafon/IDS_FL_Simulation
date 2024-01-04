@@ -24,10 +24,6 @@ from utils import (
     get_m_data,
 )
 
-# print("TensorFlow version:", tf.__version__)
-# print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
-# enable_tf_gpu_growth()
-
 def get_model() -> tf.keras.Model:
     model = tf.keras.models.Sequential(
         [
@@ -42,11 +38,6 @@ def get_model() -> tf.keras.Model:
             tf.keras.layers.Dense(n_classes, activation="softmax"),
         ]
     )
-
-    # Index(['Analysis', 'Backdoor', 'DoS', 'Exploits', 'Fuzzers', 'Generic',
-    #    'Normal', 'Reconnaissance', 'Shellcode', 'Worms'],
-    #   dtype='object')
-    
     custom_adam_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
 
     model.compile(
@@ -128,6 +119,7 @@ def mk_client_fn(partitions):
 
     return client_fn
 
+
 if __name__ == "__main__":
 
     ## -------------------  ##
@@ -150,21 +142,41 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", help="output folder suffix", type=str, required=True)
     parser.add_argument("-d", help="data_client_ folder suffix", type=str, required=True)
+    parser.add_argument("--exp", help="tell if you are going to use explicit parameters", required=False, action="store_true")
+    parser.add_argument("--batch_size", help="batch size", type=int, required=False)
+    parser.add_argument("--num_epochs", help="number of epochs", type=int, required=False)
+    parser.add_argument("--num_rounds", help="number of rounds", type=int, required=False)
+    parser.add_argument("--num_clients", help="number of clients", type=int, required=False)
+    parser.add_argument("--validation_split", help="validation split", type=float, required=False)
     args = parser.parse_args()
 
+    # Default values - Used for manual testing
     BATCH_SIZE = 64
     NUM_EPOCHS = 50
     VALIDATION_SPLIT = 0.2
     NUM_ROUNDS = 20
     NUM_CLIENTS = 3
 
-    FINAL_DIR = "final_ce_" + args.o
+    FINAL_DIR = "final_centralized_" + args.o
     DATA_DIR = "data_client_" + args.d
     FINAL_MODEL_PATH = "model.keras"
     FINAL_HISTORY_PATH = "history.json"
 
-    testset = create_centralized_testset(args.d)
-    partitions = create_partition(args.d)
+    if args.exp:
+        BATCH_SIZE = args.batch_size
+        NUM_EPOCHS = args.num_epochs
+        NUM_ROUNDS = args.num_rounds
+        NUM_CLIENTS = args.num_clients
+        VALIDATION_SPLIT = args.validation_split
+    else:
+        if not os.path.exists(FINAL_DIR):
+            os.makedirs(FINAL_DIR)
+            os.chdir(FINAL_DIR)
+
+    # Load the data
+    testset = create_centralized_testset(DATA_DIR)
+    partitions = create_partition(DATA_DIR)
+    os.chdir(FINAL_DIR)
 
     #Calculate weights for the loss function
     m = []
@@ -173,18 +185,12 @@ if __name__ == "__main__":
             m.append(4)
             m.append(4)
         m.append(np.argmax(i))
-
-    print(np.unique(m))
-    # print(m)
     weights = class_weight.compute_class_weight('balanced', classes=np.unique(m), y=m)
     weights = dict(enumerate(weights))
 
+    # Set the number of features and classes for the model
     n_features = testset[0].shape[1]
     n_classes = testset[1].shape[1]
-    
-    if not os.path.exists(FINAL_DIR):
-        os.makedirs(FINAL_DIR)
-    os.chdir(FINAL_DIR)
 
     strategy = FedAvg(
         fraction_fit=1.0,  # Sample 100% of available clients for training
@@ -195,14 +201,11 @@ if __name__ == "__main__":
         initial_parameters=ndarrays_to_parameters(get_model().get_weights()),
     )
 
-    # With a dictionary, you tell Flower's VirtualClientEngine that each
-    # client needs exclusive access to these many resources in order to run
     client_resources = {
         "num_cpus": max(int((os.cpu_count() or 1) / NUM_CLIENTS), 1),
         "num_gpus": 0.0,
     }
 
-    # Start simulation
     history = flwr.simulation.start_simulation(
         client_fn=mk_client_fn(partitions),
         num_clients=NUM_CLIENTS,
@@ -224,7 +227,8 @@ if __name__ == "__main__":
     
     m_test = np.array([])
     for file in os.listdir("../" + DATA_DIR):
-        m_test = np.append(m_test, get_m_data("../" + DATA_DIR + "/" + file)[1])
+        if file.endswith(".npz"):
+            m_test = np.append(m_test, get_m_data("../" + DATA_DIR + "/" + file)[1])
     m = m_test
     m_unique = np.unique(m)
 
@@ -278,3 +282,4 @@ if __name__ == "__main__":
     plt.title("Metrics evolution")
 
     plt.savefig("history.png")
+    
