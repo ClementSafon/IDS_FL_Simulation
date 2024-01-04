@@ -59,7 +59,7 @@ print("Whitespace stripped")
 merged_data['attack_cat'] = merged_data['attack_cat'].replace('Backdoors', 'Backdoor')
 
 # Remove a part of the Normal traffic
-normal_frac = 0.10
+normal_frac = 0.05
 normal_data = merged_data[merged_data['attack_cat'].isna()]
 normal_data_fraction = int(len(normal_data) * normal_frac)
 sampled_normal_data = normal_data.sample(n=normal_data_fraction)

@@ -6,6 +6,7 @@ import os
 from tqdm import tqdm
 import math
 import json
+import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 
@@ -79,7 +80,7 @@ if __name__ == "__main__":
             "Analysis": None,
             "Backdoor": None,
             "DoS": None,
-            "Exploits": None,
+            "Exploits": [0,0.5,0.5],
             "Generic": None,
             "Reconnaissance": None,
             "Shellcode": None,
@@ -133,17 +134,17 @@ if __name__ == "__main__":
     m_test_parts = split_data_random(m_total_test, args.n, seed)
 
 
-    for i in range(args.n):
-        print("Client "+str(i)+" :")
-        print("  - train : ", x_train_parts[i].shape)
-        print("    - Distribution :")
-        for attack_cat in m_train_parts[i].unique():
-            print("                 " + str(len(m_train_parts[i][m_train_parts[i] == attack_cat])) + " " + attack_cat + " (" + str(round(100*len(m_train_parts[i][m_train_parts[i] == attack_cat])/len(m_train_parts[i]))) + "%)")
+    # for i in range(args.n):
+    #     print("Client "+str(i)+" :")
+    #     print("  - train : ", x_train_parts[i].shape)
+    #     print("    - Distribution :")
+    #     for attack_cat in m_train_parts[i].unique():
+    #         print("                 " + str(len(m_train_parts[i][m_train_parts[i] == attack_cat])) + " " + attack_cat + " (" + str(round(100*len(m_train_parts[i][m_train_parts[i] == attack_cat])/len(m_train_parts[i]))) + "%)")
 
-    print("  - test : ", x_test_parts[i].shape)
-    print("    - Distribution :")
-    for attack_cat in m_test_parts[i].unique():
-        print("                 " + str(len(m_test_parts[i][m_test_parts[i] == attack_cat])) + " " + attack_cat + " (" + str(round(100*len(m_test_parts[i][m_test_parts[i] == attack_cat])/len(m_test_parts[i]))) + "%)")
+    # print("  - test : ", x_test_parts[i].shape)
+    # print("    - Distribution :")
+    # for attack_cat in m_test_parts[i].unique():
+    #     print("                 " + str(len(m_test_parts[i][m_test_parts[i] == attack_cat])) + " " + attack_cat + " (" + str(round(100*len(m_test_parts[i][m_test_parts[i] == attack_cat])/len(m_test_parts[i]))) + "%)")
     
 
 
@@ -159,6 +160,34 @@ if __name__ == "__main__":
         np.savez(name, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test, m_train=m_train, m_test=m_test)
     
     print("All file saved")
+
+
+    # export the distribution of the data
+
+    fig, axs = plt.subplots(args.n, figsize=(10, args.n * 5))
+    for i in range(args.n):
+        name = folder_name + "/party" + str(i) + ".npz"
+        data = np.load(name, allow_pickle=True)
+        y_train = data["y_train"]
+        m_train = data["m_train"]
+        y_test = data["y_test"]
+        m_test = data["m_test"]
+
+        m_unique = np.unique(m_test)
+        train_counts = []
+        test_counts = []
+        for j in range(len(m_unique)):
+            train_counts.append(np.count_nonzero(y_train[:, j]))
+            test_counts.append(np.count_nonzero(y_test[:, j]))
+        axs[i].set_title("Client " + str(i))
+        axs[i].bar(m_unique, train_counts, label="train")
+        axs[i].bar(m_unique, test_counts, label="test")
+        axs[i].legend()
+
+    plt.savefig(folder_name + ".png")
+
+        
+        
 
 
 

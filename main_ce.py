@@ -39,7 +39,7 @@ def get_model() -> tf.keras.Model:
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
-            tf.keras.layers.Dense(10, activation="softmax"),
+            tf.keras.layers.Dense(n_classes, activation="softmax"),
         ]
     )
 
@@ -112,7 +112,7 @@ class FlowerClient(flwr.client.NumPyClient):
             epochs=NUM_EPOCHS,
             batch_size=BATCH_SIZE,
             validation_split=VALIDATION_SPLIT,
-            verbose=cast(str, 0),
+            verbose=0,
             class_weight=weights
         )
         return self.model.get_weights(), len(self.x_train), {}
@@ -153,9 +153,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     BATCH_SIZE = 64
-    NUM_EPOCHS = 1000
+    NUM_EPOCHS = 50
     VALIDATION_SPLIT = 0.2
-    NUM_ROUNDS = 1
+    NUM_ROUNDS = 20
     NUM_CLIENTS = 3
 
     FINAL_DIR = "final_ce_" + args.o
@@ -169,11 +169,18 @@ if __name__ == "__main__":
     #Calculate weights for the loss function
     m = []
     for i in testset[1]:
+        if np.argmax(i) == 4:
+            m.append(4)
+            m.append(4)
         m.append(np.argmax(i))
+
+    print(np.unique(m))
+    # print(m)
     weights = class_weight.compute_class_weight('balanced', classes=np.unique(m), y=m)
     weights = dict(enumerate(weights))
 
     n_features = testset[0].shape[1]
+    n_classes = testset[1].shape[1]
     
     if not os.path.exists(FINAL_DIR):
         os.makedirs(FINAL_DIR)
@@ -244,3 +251,30 @@ if __name__ == "__main__":
         f.write(str(report))
 
     plt.savefig("confusion_matrix.png")
+
+
+    # Visualize the history
+    plt.figure()
+    with open("history.json", "r") as f:
+        json = eval(f.read())
+        global_accuracy = json["accuracy"]
+        global_precision = json["precision"]
+        global_recall = json["recall"]
+        global_f1 = json["f1-score"]
+
+    round = [data[0] for data in global_accuracy]
+    acc = [100.0 * data[1] for data in global_accuracy]
+    prec = [100.0 * data[1] for data in global_precision]
+    rec = [100.0 * data[1] for data in global_recall]
+    f1 = [100.0 * data[1] for data in global_f1]
+
+    plt.plot(round, acc, label="Accuracy")
+    plt.plot(round, prec, label="Precision")
+    plt.plot(round, rec, label="Recall")
+    plt.plot(round, f1, label="F1")
+    plt.xlabel("Round")
+    plt.ylabel("Percentage")
+    plt.legend()
+    plt.title("Metrics evolution")
+
+    plt.savefig("history.png")

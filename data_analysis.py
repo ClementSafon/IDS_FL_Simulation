@@ -352,10 +352,18 @@ def mahalanobis_distance():
 
 
 def attack_cat_plot():
-    csv_file = "dataset/UNSW-NB15/custom_UNSW-NB15.csv"
+    csv_file = "dataset/UNSW-NB15/custom/UNSW-NB15_training.csv"
     data = pd.read_csv(csv_file, encoding='latin-1')
     plt.figure(figsize=(10, 6))
-    sns.countplot(data=data, x='attack_cat')
+    sns.countplot(data=data, x='attack_cat', label='Training')
+    plt.xlabel('Attack Category')
+    plt.ylabel('Count')
+    plt.title('Number of Instances per Attack Category')
+    plt.xticks(rotation=45)
+
+    csv_file = "dataset/UNSW-NB15/custom/UNSW-NB15_testing.csv"
+    data = pd.read_csv(csv_file, encoding='latin-1')
+    sns.countplot(data=data, x='attack_cat', label='Testing')
     plt.xlabel('Attack Category')
     plt.ylabel('Count')
     plt.title('Number of Instances per Attack Category')
