@@ -1,0 +1,36 @@
+# Aggregator configuration
+evaluation_type: 'centralized' # or 'decentralized'
+num_clients: 3 # the number of clients in the federated learning
+num_rounds: 1 # the number of rounds of aggregation
+
+# Dataset configuration
+data_name: 'example' # the name of the folder containing the party's data
+dataset_folder: 'UNSW-NB15/custom' # the path to the folder containing the dataset in the /dataset folder
+train_filename: 'UNSW-NB15_training.csv' # the name of the training file
+test_filename: 'UNSW-NB15_testing.csv' # the name of the testing file
+seed: 1234 # the seed is used to shuffle the dataset
+
+# Clients configuration
+# Here you can specify the distribution of the classes among the clients
+# Put "" if you want to use the default distribution (1/num_clients for each class)
+# Otherwise, specify the distribution as a list of floats, one for the proportion of the class in each client
+# (the sum don't necessarily need to be 1, you will just have more or less samples in the dataset)
+# 
+# For example here we have 3 clients, and we want the first one to have 0% of the samples of the class "Generic".
+# The second and the third will have 50% of the samples of the class "Generic".
+# The other classes will be distributed equally among the clients.
+clients_special_distribution: 
+  Normal: ""
+  Fuzzers: ""
+  Analysis: ""
+  Backdoor: ""
+  DoS: ""
+  Exploits: ""
+  Generic: [0, 0.5, 0.5]
+  Reconnaissance: ""
+  Shellcode: ""
+  Worms: ""
+
+batch_size: 64 # the batch size used for the training by clients
+num_epochs: 5 # the number of epochs used for the training by clients
+validation_split: 0.2 # the proportion of the training set used for validation

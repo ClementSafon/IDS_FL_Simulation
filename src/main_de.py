@@ -29,7 +29,7 @@ from flwr.common import (
 )
 from flwr.common.typing import Scalar, Union, Optional
 
-from utils import (
+from src.utils import (
     create_partition,
 )
 

@@ -4,7 +4,7 @@ This repo is largely influenced by the works [Yann Busnel and Léo Lavaur](https
 
 For now, we use UNSW-NB15 dataset in the folder `./dataset/UNSW-B15` available [here](https://research.unsw.edu.au/projects/unsw-nb15-dataset).
 
-## Installation
+## 💻 - Installation
 
 ### Requirements
 
@@ -22,39 +22,53 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
+## ⚙️ - Usage
 
-### Preprocess Data
+## Preprocess Data
 
-```bash
-make data name=random
-```
+_if you want to reprocess the UNSW-NB15 dataset, you can use the following command:_
 
-### Train with Federated Evaluation
+`python src/preprocess.py --output hard_0.05_custom --hard --normal_frac 0.05`
 
-```bash
-make run_de name=random data=random
-```
+Args :
 
-### Train with Centralized Evaluation
+- `--output` : name of the output folder
+- `--hard` : use hard to restrict the dataset even more. Attack categories removed in hard mode are are : Dos. _(In addtion to the normally removed : Analysis, Backdoors, Shellcode, Worms)_
+- `--normal_frac` : fraction of normal traffic in the dataset
 
-```bash
-make run_ce name=random data=random
-```
+## Set Config
 
-### Show Results
+All the simulation work with a **config file** in yaml format. _You can find an example called 'config_example.yaml' in the root folder._
 
-```bash
-make show
-```
+In this file, you can set all the parameters of the simulation.
+**Please see the config_example.yaml file for more details.**
 
-### Eval Results
+## Start the Simulation
 
-```bash
-make eval final=final_ce_random data=random
-```
+To start the simulation, you can then use the following command:
 
-# Warning
+`python main.py --config config_example.yaml`
+
+#### Note :
+
+If you want to specify the output folder you can use `--output` argument.
+You can also specify to force the overwrite of the output folder with `-f`, and force the re-extraction of the dataset with `-r` _(Otherwise, the data folder will be used if it exists)_.
+
+## The Results
+
+The results of the simulation are stored in the output folder. _(By default, the output folder is called with the config file name)_
+
+You can find the following files:
+
+- `confusion_matrix.png` : confusion matrix of the final global model (on the test set)
+- `metrics.json` : metrics of the model for each class (on the test set)
+- `history.json` : history of the training metrics for each round
+- `history.png` : plot of the history of the training metrics for each round
+- `model.keras` : model saved after the training
+
+# ⚠️ Warning
+
+❗ For now, the simulation only works in **centralized evaluation** mode. ❗
 
 **The main_fe.py requires lib modifications to work.**
 
@@ -64,6 +78,10 @@ _If you have the default Flwr version, please comment this argument in the main_
 metric_evaluation_target=METRIC_EVALUATION_TARGET,
 ```
 
-# Other
+# Other Information
 
-This repo is still under development.
+To clean the project, you can use `make clean`.
+
+In the Makefile, you can find some other commands to bypass the config file, and lunch the src scripts directly. **They may not work as expected.**
+
+_This repo is still under development._

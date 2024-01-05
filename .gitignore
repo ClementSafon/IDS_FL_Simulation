@@ -10,3 +10,7 @@ dataset/
 # Ignore preprocessed data and results
 data_client_*/
 final_*
+
+# Ignore config files
+config_*
+!config_example.yaml
