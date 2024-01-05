@@ -1,5 +1,12 @@
-import pandas as pd
 import os
+import pandas as pd
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--normal_frac', '-nf', type=float, default=0.05, help='Fraction of normal traffic to keep')
+parser.add_argument('--hard', '-hr', action='store_true', help='Remove more of the unpopulated attack categories')
+parser.add_argument('--output', '-o', type=str, required=True, help='Output file name')
+args = parser.parse_args()
 
 os.chdir('dataset/UNSW-NB15/')
 features_df = pd.read_csv('NUSW-NB15_features.csv', encoding='latin-1')
@@ -59,7 +66,7 @@ print("Whitespace stripped")
 merged_data['attack_cat'] = merged_data['attack_cat'].replace('Backdoors', 'Backdoor')
 
 # Remove a part of the Normal traffic
-normal_frac = 0.05
+normal_frac = args.normal_frac
 normal_data = merged_data[merged_data['attack_cat'].isna()]
 normal_data_fraction = int(len(normal_data) * normal_frac)
 sampled_normal_data = normal_data.sample(n=normal_data_fraction)
@@ -68,7 +75,7 @@ final_data = pd.concat([sampled_normal_data, non_normal_data])
 print("Normal traffic partially removed")
 
 # Remove Unpopulated attack_cat
-HARD = False
+HARD = args.hard
 if HARD:
     unpopulated_attack_cat = ['Dos', 'Backdoor', 'Shellcode', 'Worms', 'Analysis']
 else:
@@ -76,14 +83,15 @@ else:
 final_data = final_data[final_data['attack_cat'].isin(unpopulated_attack_cat) == False]
 
 # Save to csv
+os.chdir(args.output)
 final_data['attack_cat'] = final_data['attack_cat'].fillna('Normal')
-final_data.to_csv('custom/UNSW-NB15.csv', index=False)
+final_data.to_csv('UNSW-NB15.csv', index=False)
 
 # Export Training and Testing data
 training_data = final_data.sample(frac=0.8, random_state=0)
 testing_data = final_data.drop(training_data.index)
-training_data.to_csv('custom/UNSW-NB15_training.csv', index=False)
-testing_data.to_csv('custom/UNSW-NB15_testing.csv', index=False)
+training_data.to_csv('UNSW-NB15_training.csv', index=False)
+testing_data.to_csv('UNSW-NB15_testing.csv', index=False)
 
 print("Preprocessing done")
 
