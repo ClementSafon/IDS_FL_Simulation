@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 import yaml
 import argparse
 import logging
@@ -37,6 +38,7 @@ if __name__=="__main__":
             validation_split = config["validation_split"]
     except:
         logging.error("Error loading config file !")
+        logging.error(sys.exc_info()[0])
         logging.error("Exiting...")
         exit()
     logging.info("Config file loaded !")
@@ -75,6 +77,8 @@ if __name__=="__main__":
     # Create the output folder
     if not args.output:
         args.output = "final_" + evaluation_type + "_" + args.config.split(".")[0]
+    else:
+        args.output = "final_" + evaluation_type + "_" + args.output
 
     if os.path.exists(args.output):
         logging.warning("Output folder already exists !")

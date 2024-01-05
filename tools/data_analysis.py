@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -7,6 +8,7 @@ from numpy.linalg import inv
 from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 import seaborn as sns
 from scipy.linalg import pinv
+import keras
 
 
 def count_true_false_repartition(n: int):
@@ -371,9 +373,14 @@ def attack_cat_plot():
     plt.show()
     
 def tmp():
-    f = np.load("data_client_config_1/party0.npz")
-    
-    print(f["x_test"])
+    os.chdir('final_centralized_attacker_simple_poisoning')
+    model = keras.models.load_model('model.keras')
+    weights = model.get_weights()
+    # for weight in weights:
+    #     print(max(weight.flatten()))
+    #     print(min(weight.flatten()))
+    #     print("####")
+    print(weights[-1])
 
 if __name__ == "__main__":
     # count_true_false_repartition(3)
@@ -391,6 +398,6 @@ if __name__ == "__main__":
 
     # mahalanobis_distance()
 
-    attack_cat_plot()
+    # attack_cat_plot()
 
-    # tmp()
+    tmp()
