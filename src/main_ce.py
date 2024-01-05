@@ -86,9 +86,10 @@ def get_evaluate_fn(testset):
     return evaluate
 
 class FlowerClient(flwr.client.NumPyClient):
-    def __init__(self, x_, y_):
+    def __init__(self, x_, y_, attacker=False):
         self.x_train = x_
         self.y_train = y_
+        self.attacker = attacker
 
         self.model = get_model()
 
@@ -96,6 +97,64 @@ class FlowerClient(flwr.client.NumPyClient):
         return self.model.get_weights()
 
     def fit(self, parameters, config):
+        if self.attacker:
+            # The Fuzz Attack
+            # for i in range(len(parameters)):
+            #     random_values = np.random.uniform(low=-5, high=5, size=parameters[i].shape)
+            #     parameters[i] = random_values
+            # return parameters, len(self.x_train), {}
+
+            # The Poisoning Attack (simple target)
+            # class_index = 4 # index of the class to be poisoned (here it is Normal)
+            # y_train_modified = np.full_like(self.y_train, False)
+            # y_train_modified[:, class_index] = True
+            # self.model.set_weights(parameters)
+            # self.model.fit(
+            #     self.x_train,
+            #     y_train_modified,
+            #     epochs=NUM_EPOCHS,
+            #     batch_size=BATCH_SIZE,
+            #     validation_split=VALIDATION_SPLIT,
+            #     verbose=0,
+            # )
+            # model_weights = self.model.get_weights()
+            # return model_weights, len(self.x_train), {}
+
+            # The Poisoning Attack (targeted)
+            # # Train the client as if it was a normal one to estimate the other clients' weights
+            # self.model.set_weights(parameters)
+            # self.model.fit(
+            #     self.x_train,
+            #     self.y_train,
+            #     epochs=NUM_EPOCHS,
+            #     batch_size=BATCH_SIZE,
+            #     validation_split=VALIDATION_SPLIT,
+            #     verbose=0,
+            #     class_weight=weights
+            # )
+            # clients_model_weights = self.model.get_weights()
+            # # Modify the weights to target a specific class and train the client
+            # class_index = 4 # index of the class to be poisoned (here it is Normal)
+            # y_train_modified = np.full_like(self.y_train, False)
+            # y_train_modified[:, class_index] = True
+            # self.model.set_weights(parameters)
+            # self.model.fit(
+            #     self.x_train,
+            #     y_train_modified,
+            #     epochs=NUM_EPOCHS,
+            #     batch_size=BATCH_SIZE,
+            #     validation_split=VALIDATION_SPLIT,
+            #     verbose=0,
+            # )
+            # wanted_model_weights = self.model.get_weights()
+            # # Combine the two models' weights. The number of clients has to be known.
+            # num_clients = 3
+            # attacker_model_weights = parameters
+            # for i in range(len(clients_model_weights)):
+            #     attacker_model_weights[i] = (num_clients)*wanted_model_weights[i] - (num_clients-1)*clients_model_weights[i]
+            # return attacker_model_weights, len(self.x_train), {}
+            return
+
         self.model.set_weights(parameters)
         self.model.fit(
             self.x_train,
@@ -114,6 +173,10 @@ def mk_client_fn(partitions):
     def client_fn(cid: str) -> FlowerClient:
         """Create a new FlowerClient for partition i."""
         x_train, y_train = partitions[int(cid)][0:2]
+
+        # Enable the attacker client for the id 0
+        # if cid == "0":
+        #     return FlowerClient(x_train, y_train, attacker=True)
 
         return FlowerClient(x_train, y_train)
 
