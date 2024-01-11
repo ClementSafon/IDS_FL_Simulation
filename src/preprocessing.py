@@ -9,7 +9,7 @@ parser.add_argument('--output', '-o', type=str, required=True, help='Output file
 args = parser.parse_args()
 
 os.chdir('dataset/UNSW-NB15/')
-features_df = pd.read_csv('NUSW-NB15_features.csv', encoding='latin-1')
+features_df = pd.read_csv('UNSW-NB15_features.csv', encoding='latin-1')
 
 all_features = features_df['Name'].values.tolist()
 lowercase_features = [feature.lower() for feature in all_features]
@@ -83,6 +83,7 @@ else:
 final_data = final_data[final_data['attack_cat'].isin(unpopulated_attack_cat) == False]
 
 # Save to csv
+os.mkdir(args.output, exist_ok=True)
 os.chdir(args.output)
 final_data['attack_cat'] = final_data['attack_cat'].fillna('Normal')
 final_data.to_csv('UNSW-NB15.csv', index=False)

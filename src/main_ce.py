@@ -121,38 +121,38 @@ class FlowerClient(flwr.client.NumPyClient):
             # return model_weights, len(self.x_train), {}
 
             # The Poisoning Attack (targeted)
-            # # Train the client as if it was a normal one to estimate the other clients' weights
-            # self.model.set_weights(parameters)
-            # self.model.fit(
-            #     self.x_train,
-            #     self.y_train,
-            #     epochs=NUM_EPOCHS,
-            #     batch_size=BATCH_SIZE,
-            #     validation_split=VALIDATION_SPLIT,
-            #     verbose=0,
-            #     class_weight=weights
-            # )
-            # clients_model_weights = self.model.get_weights()
-            # # Modify the weights to target a specific class and train the client
-            # class_index = 4 # index of the class to be poisoned (here it is Normal)
-            # y_train_modified = np.full_like(self.y_train, False)
-            # y_train_modified[:, class_index] = True
-            # self.model.set_weights(parameters)
-            # self.model.fit(
-            #     self.x_train,
-            #     y_train_modified,
-            #     epochs=NUM_EPOCHS,
-            #     batch_size=BATCH_SIZE,
-            #     validation_split=VALIDATION_SPLIT,
-            #     verbose=0,
-            # )
-            # wanted_model_weights = self.model.get_weights()
-            # # Combine the two models' weights. The number of clients has to be known.
-            # num_clients = 3
-            # attacker_model_weights = parameters
-            # for i in range(len(clients_model_weights)):
-            #     attacker_model_weights[i] = (num_clients)*wanted_model_weights[i] - (num_clients-1)*clients_model_weights[i]
-            # return attacker_model_weights, len(self.x_train), {}
+            # Train the client as if it was a normal one to estimate the other clients' weights
+            self.model.set_weights(parameters)
+            self.model.fit(
+                self.x_train,
+                self.y_train,
+                epochs=NUM_EPOCHS,
+                batch_size=BATCH_SIZE,
+                validation_split=VALIDATION_SPLIT,
+                verbose=0,
+                class_weight=weights
+            )
+            clients_model_weights = self.model.get_weights()
+            # Modify the weights to target a specific class and train the client
+            class_index = 4 # index of the class to be poisoned (here it is Normal)
+            y_train_modified = np.full_like(self.y_train, False)
+            y_train_modified[:, class_index] = True
+            self.model.set_weights(parameters)
+            self.model.fit(
+                self.x_train,
+                y_train_modified,
+                epochs=NUM_EPOCHS,
+                batch_size=BATCH_SIZE,
+                validation_split=VALIDATION_SPLIT,
+                verbose=0,
+            )
+            wanted_model_weights = self.model.get_weights()
+            # Combine the two models' weights. The number of clients has to be known.
+            num_clients = 3
+            attacker_model_weights = parameters
+            for i in range(len(clients_model_weights)):
+                attacker_model_weights[i] = (num_clients)*wanted_model_weights[i] - (num_clients-1)*clients_model_weights[i]
+            return attacker_model_weights, len(self.x_train), {}
             return
 
         self.model.set_weights(parameters)
