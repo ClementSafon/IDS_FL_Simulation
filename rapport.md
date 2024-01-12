@@ -8,7 +8,6 @@ Clément S., Sarah R.
 
 > With IoT systems spreading across all the different domains and aspects of our lives for the past few years, attacks on these devices have likewise seen a rise. 
 
-TEST
 
 ## I. Introduction 
 
@@ -84,6 +83,22 @@ The device's resource, time consumption, as well as communcation cost should be 
 > What is the rate of false positives which make IDS unusable for real life conditions? 
 
 Diversity in the network traffic.
+
+## Implemented IDS
+
+### Data repartition
+
+
+![Getting Started](images/data_repartition_client0_all.png)
+![Getting Started](images/data_repartition_client0_no_generic.png)
+
+The third 
+![Getting Started](images/data_repartition_three_clients.png)
+
+In this experiment, the feature "rate" was not taken in the features we wanted to keep. 
+It was still kept in 
+Even though in most litterature, 24 features, amongst which the feature "rate" was taken into account, 
+
 
 ## References
 <a id="1">[1]</a> 
