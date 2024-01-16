@@ -49,6 +49,7 @@ if __name__=="__main__":
     if not os.path.exists(data_folder) or args.redo_data:
         if os.path.exists(data_folder):
             logging.info("Overwriting existing data folder...")
+            shutil.rmtree(data_folder)
         else:
             logging.info("No data folder named {} found ! Creating it...".format(data_folder))
         num_clients = num_clients
@@ -83,7 +84,7 @@ if __name__=="__main__":
     if os.path.exists(args.output):
         logging.warning("Output folder already exists !")
         if args.force:
-            logging.warning("Overwriting existing folder...")
+            logging.warning("Overwriting existing folder (-f flag)")
             shutil.rmtree(args.output)
             os.makedirs(args.output)
         else:
