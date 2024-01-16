@@ -162,7 +162,7 @@ class FlowerClient(flwr.client.NumPyClient):
             epochs=NUM_EPOCHS,
             batch_size=BATCH_SIZE,
             validation_split=VALIDATION_SPLIT,
-            verbose=0,
+            verbose=cast(str, 0),
             class_weight=weights
         )
         return self.model.get_weights(), len(self.x_train), {}

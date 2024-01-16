@@ -106,7 +106,7 @@ if __name__=="__main__":
         os.system("python src/main_ce.py -o {} -d {} --exp --batch_size {} --num_epochs {} --num_rounds {} --num_clients {} --validation_split {}".format('_'.join(args.output.split("_")[2:]), data_name, batch_size, num_epochs, num_rounds, num_clients, validation_split))
     elif evaluation_type == "decentralized":
         logging.info("Running decentralized simulation...")
-        # TODO
+        os.system("python src/main_de.py -o {} -d {} --exp --batch_size {} --num_epochs {} --num_rounds {} --num_clients {} --validation_split {}".format('_'.join(args.output.split("_")[2:]), data_name, batch_size, num_epochs, num_rounds, num_clients, validation_split))
     else:
         logging.error("Invalid evaluation type !")
         logging.error("Exiting...")

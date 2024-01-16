@@ -1,5 +1,7 @@
-save:
-    N=$(shell ls saved_results/simu* 2>/dev/null | wc -l); \
+.PHONY: save
+
+save: 
+    N=$$(shell ls saved_results/simu* 2>/dev/null | wc -l); \
     mkdir -p saved_results/simu$$((N+1)); \
     mv data_client_* saved_results/simu$$((N+1)); \
     mv final_* saved_results/simu$$((N+1)); \
