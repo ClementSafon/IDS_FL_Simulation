@@ -12,7 +12,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from flwr.simulation.ray_transport.utils import enable_tf_gpu_growth
 from tensorflow import keras
 from flwr.common import ndarrays_to_parameters
-from flwr.server.strategy import FedAvg
+from flwr.server.strategy.krum import Krum
 import argparse
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     NUM_ROUNDS = 20
     NUM_CLIENTS = 3
 
-    FINAL_DIR = "final_centralized_" + args.o
+    FINAL_DIR = "final_secure_" + args.o
     DATA_DIR = "data_client_" + args.d
     FINAL_MODEL_PATH = "model.keras"
     FINAL_HISTORY_PATH = "history.json"
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     n_features = testset[0].shape[1]
     n_classes = testset[1].shape[1]
 
-    strategy = FedAvg(
+    strategy = Krum(
         fraction_fit=1.0,  # Sample 100% of available clients for training
         fraction_evaluate=0.0,  # Disable the federated evaluation
         min_fit_clients=NUM_CLIENTS,  # Always sample all clients
