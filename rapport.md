@@ -25,6 +25,8 @@ The results showcase the potential of Federated Learning as a robust and privacy
 **As this paper is still a draft, the following statement might evolve over the time:**
 This paper is sectionned as follows: first, we expose Federated Larning and explain how it works.
 
+ge0C0ASeIUKpf5Q
+
 ## II. Federated Learning: An overview 
 
 How are the data aggregated? 
@@ -83,8 +85,22 @@ The device's resource, time consumption, as well as communcation cost should be 
 > What is the rate of false positives which make IDS unusable for real life conditions? 
 
 Diversity in the network traffic.
+Impact de l'apprentissage fédéré sur ça
+
+
 
 ## Implemented IDS
+
+### First experiment: binary classification
+
+
+### Second experiment: multi-class classification 
+
+In this section, we explore our second experiment, this time with multi-class classification Federated Learning. 
+To tackle the issue of 
+
+After some experiment and some time, another idea struc
+
 
 ### Data repartition
 
@@ -98,6 +114,28 @@ The third
 In this experiment, the feature "rate" was not taken in the features we wanted to keep. 
 It was still kept in 
 Even though in most litterature, 24 features, amongst which the feature "rate" was taken into account, 
+
+Last time, we saw the differecence b
+to see for the federated evaluation. To see if it works. 
+What we didn't take into account is that the FE is different for every client. THey are going to evaluate the same model. 
+
+L'évaluation est faite après l'aggrégation. 
+Si on a trois clients, si un n'a pas les connaissances de certaines classes d'attaques. 
+VOir les résultats de modèle locale la classe manquante en voyant la plus-valu
+
+Dans un monde de soucis de protection des données, on ne partage que des modèles. 
+
+Présenter les résultats avec hopefully les résultats cohérents qui co
+état de l'art/background/restituer les recherches
+Attention
+Dire les obstacles qu'on a rencontré
+Fuzzing 
+Fonction
+
+
+## Bilan
+Expériences, bilan, enseignements à tirer comment bien effecuter l'apprentissage
+
 
 
 ## References
