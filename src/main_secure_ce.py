@@ -12,7 +12,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from flwr.simulation.ray_transport.utils import enable_tf_gpu_growth
 from tensorflow import keras
 from flwr.common import ndarrays_to_parameters
-from flwr.server.strategy import FedAvg
+from flwr.server.strategy.krum import Krum
 import argparse
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -122,37 +122,37 @@ class FlowerClient(flwr.client.NumPyClient):
 
             # The Poisoning Attack (targeted)
             # Train the client as if it was a normal one to estimate the other clients' weights
-            # self.model.set_weights(parameters)
-            # self.model.fit(
-            #     self.x_train,
-            #     self.y_train,
-            #     epochs=NUM_EPOCHS,
-            #     batch_size=BATCH_SIZE,
-            #     validation_split=VALIDATION_SPLIT,
-            #     verbose=0,
-            #     class_weight=weights
-            # )
-            # clients_model_weights = self.model.get_weights()
-            # # Modify the weights to target a specific class and train the client
-            # class_index = 4 # index of the class to be poisoned (here it is Normal)
-            # y_train_modified = np.full_like(self.y_train, False)
-            # y_train_modified[:, class_index] = True
-            # self.model.set_weights(parameters)
-            # self.model.fit(
-            #     self.x_train,
-            #     y_train_modified,
-            #     epochs=NUM_EPOCHS,
-            #     batch_size=BATCH_SIZE,
-            #     validation_split=VALIDATION_SPLIT,
-            #     verbose=0,
-            # )
-            # wanted_model_weights = self.model.get_weights()
-            # # Combine the two models' weights. The number of clients has to be known.
-            # num_clients = 3
-            # attacker_model_weights = parameters
-            # for i in range(len(clients_model_weights)):
-            #     attacker_model_weights[i] = (num_clients)*wanted_model_weights[i] - (num_clients-1)*clients_model_weights[i]
-            # return attacker_model_weights, len(self.x_train), {}
+            self.model.set_weights(parameters)
+            self.model.fit(
+                self.x_train,
+                self.y_train,
+                epochs=NUM_EPOCHS,
+                batch_size=BATCH_SIZE,
+                validation_split=VALIDATION_SPLIT,
+                verbose=0,
+                class_weight=weights
+            )
+            clients_model_weights = self.model.get_weights()
+            # Modify the weights to target a specific class and train the client
+            class_index = 4 # index of the class to be poisoned (here it is Normal)
+            y_train_modified = np.full_like(self.y_train, False)
+            y_train_modified[:, class_index] = True
+            self.model.set_weights(parameters)
+            self.model.fit(
+                self.x_train,
+                y_train_modified,
+                epochs=NUM_EPOCHS,
+                batch_size=BATCH_SIZE,
+                validation_split=VALIDATION_SPLIT,
+                verbose=0,
+            )
+            wanted_model_weights = self.model.get_weights()
+            # Combine the two models' weights. The number of clients has to be known.
+            num_clients = 3
+            attacker_model_weights = parameters
+            for i in range(len(clients_model_weights)):
+                attacker_model_weights[i] = (num_clients)*wanted_model_weights[i] - (num_clients-1)*clients_model_weights[i]
+            return attacker_model_weights, len(self.x_train), {}
             return
 
         self.model.set_weights(parameters)
@@ -175,8 +175,8 @@ def mk_client_fn(partitions):
         x_train, y_train = partitions[int(cid)][0:2]
 
         # Enable the attacker client for the id 0
-        # if cid == "0":
-        #     return FlowerClient(x_train, y_train, attacker=True)
+        if cid == "0":
+            return FlowerClient(x_train, y_train, attacker=True)
 
         return FlowerClient(x_train, y_train)
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     NUM_ROUNDS = 20
     NUM_CLIENTS = 3
 
-    FINAL_DIR = "final_centralized_" + args.o
+    FINAL_DIR = "final_secure_" + args.o
     DATA_DIR = "data_client_" + args.d
     FINAL_MODEL_PATH = "model.keras"
     FINAL_HISTORY_PATH = "history.json"
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     n_features = testset[0].shape[1]
     n_classes = testset[1].shape[1]
 
-    strategy = FedAvg(
+    strategy = Krum(
         fraction_fit=1.0,  # Sample 100% of available clients for training
         fraction_evaluate=0.0,  # Disable the federated evaluation
         min_fit_clients=NUM_CLIENTS,  # Always sample all clients

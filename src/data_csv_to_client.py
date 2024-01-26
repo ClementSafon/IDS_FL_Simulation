@@ -176,7 +176,7 @@ def plot_data_distribution(n: int, folder_name: str) -> None:
     return:
         None
     """
-    fig, axs = plt.subplots(n, figsize=(10, n * 5))
+    fig, axs = plt.subplots(n, 2, figsize=(20, n * 5))  # Changed to 2 columns
     for i in range(n):
         name = folder_name + "/party" + str(i) + ".npz"
         data = np.load(name, allow_pickle=True)
@@ -191,16 +191,41 @@ def plot_data_distribution(n: int, folder_name: str) -> None:
         for j in range(len(m_unique)):
             train_counts.append(np.count_nonzero(y_train[:, j]))
             test_counts.append(np.count_nonzero(y_test[:, j]))
+
         if n > 1:
-            axs[i].set_title("Client " + str(i))
-            axs[i].bar(m_unique, train_counts, label="train")
-            axs[i].bar(m_unique, test_counts, label="test")
-            axs[i].legend()
+            axs[i, 0].set_title("Client " + str(i) + " Train")  # Set title for train graph
+            axs[i, 0].bar(m_unique, train_counts, label="train")
+            axs[i, 0].set_ylabel("Number of samples")
+            axs[i, 0].legend()
+
+            axs[i, 1].set_title("Client " + str(i) + " Test")  # Set title for test graph
+            axs[i, 1].bar(m_unique, test_counts, label="test", color="orange")
+            axs[i, 1].set_ylabel("Number of samples")
+            axs[i, 1].legend()
+
+            # Set the y-axis limits to be the same for both subplots
+            ymin = min(axs[i, 0].get_ylim()[0], axs[i, 1].get_ylim()[0])
+            ymax = max(axs[i, 0].get_ylim()[1], axs[i, 1].get_ylim()[1])
+            axs[i, 0].set_ylim(ymin, ymax)
+            axs[i, 1].set_ylim(ymin, ymax)
         else:
-            axs.set_title("Client " + str(i))
-            axs.bar(m_unique, train_counts, label="train")
-            axs.bar(m_unique, test_counts, label="test")
-            axs.legend()
+            axs[0].set_title("Client " + str(i) + " Train")  # Set title for train graph
+            axs[0].bar(m_unique, train_counts, label="train")
+            axs[0].set_ylabel("Number of samples")
+            axs[0].legend()
+
+            axs[1].set_title("Client " + str(i) + " Test")  # Set title for test graph
+            axs[1].bar(m_unique, test_counts, label="test", color="orange")
+            axs[1].set_ylabel("Number of samples")
+            axs[1].legend()
+
+            ymin = min(axs[0].get_ylim()[0], axs[1].get_ylim()[0])
+            ymax = max(axs[0].get_ylim()[1], axs[1].get_ylim()[1])
+            axs[0].set_ylim(ymin, ymax)
+            axs[1].set_ylim(ymin, ymax)
+    
+    fig.tight_layout()
+
 
     plt.savefig(folder_name + "/data_distribution.png")
 

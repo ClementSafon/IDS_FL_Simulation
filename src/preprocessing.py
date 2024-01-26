@@ -5,11 +5,12 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--normal_frac', '-nf', type=float, default=0.05, help='Fraction of normal traffic to keep')
 parser.add_argument('--hard', '-hr', action='store_true', help='Remove more of the unpopulated attack categories')
+parser.add_argument('--soft', '-sf', action='store_true', help='Keep all the attack categories')
 parser.add_argument('--output', '-o', type=str, required=True, help='Output file name')
 args = parser.parse_args()
 
 os.chdir('dataset/UNSW-NB15/')
-features_df = pd.read_csv('NUSW-NB15_features.csv', encoding='latin-1')
+features_df = pd.read_csv('UNSW-NB15_features.csv', encoding='latin-1')
 
 all_features = features_df['Name'].values.tolist()
 lowercase_features = [feature.lower() for feature in all_features]
@@ -76,13 +77,17 @@ print("Normal traffic partially removed")
 
 # Remove Unpopulated attack_cat
 HARD = args.hard
+SOFT = args.soft
 if HARD:
     unpopulated_attack_cat = ['Dos', 'Backdoor', 'Shellcode', 'Worms', 'Analysis']
 else:
     unpopulated_attack_cat = ['Backdoor', 'Shellcode', 'Worms', 'Analysis']
-final_data = final_data[final_data['attack_cat'].isin(unpopulated_attack_cat) == False]
+if not SOFT:
+    final_data = final_data[final_data['attack_cat'].isin(unpopulated_attack_cat) == False]
 
 # Save to csv
+if not os.path.exists(args.output):
+    os.mkdir(args.output)
 os.chdir(args.output)
 final_data['attack_cat'] = final_data['attack_cat'].fillna('Normal')
 final_data.to_csv('UNSW-NB15.csv', index=False)

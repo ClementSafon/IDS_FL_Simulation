@@ -354,22 +354,32 @@ def mahalanobis_distance():
 
 
 def attack_cat_plot():
-    csv_file = "dataset/UNSW-NB15/custom/UNSW-NB15_training.csv"
-    data = pd.read_csv(csv_file, encoding='latin-1')
-    plt.figure(figsize=(10, 6))
-    sns.countplot(data=data, x='attack_cat', label='Training')
-    plt.xlabel('Attack Category')
-    plt.ylabel('Count')
-    plt.title('Number of Instances per Attack Category')
-    plt.xticks(rotation=45)
+    # csv_file = "dataset/UNSW-NB15/custom/UNSW-NB15_training.csv"
+    # data = pd.read_csv(csv_file, encoding='latin-1')
+    # plt.figure(figsize=(10, 6))
+    # sns.countplot(data=data, x='attack_cat', label='Training')
+    # plt.xlabel('Attack Category')
+    # plt.ylabel('Count')
+    # plt.title('Number of Network Traffic Instances per Attack Category')
+    # plt.xticks(rotation=45)
 
-    csv_file = "dataset/UNSW-NB15/custom/UNSW-NB15_testing.csv"
+    # csv_file = "dataset/UNSW-NB15/custom/UNSW-NB15_testing.csv"
+    # data = pd.read_csv(csv_file, encoding='latin-1')
+    # sns.countplot(data=data, x='attack_cat', label='Testing')
+    # plt.xlabel('Attack Category')
+    # plt.ylabel('Count')
+    # plt.xticks(rotation=45)
+    # plt.tight_layout()
+    # plt.show()
+
+    csv_file = "dataset/UNSW-NB15/all_normal/UNSW-NB15.csv"
     data = pd.read_csv(csv_file, encoding='latin-1')
-    sns.countplot(data=data, x='attack_cat', label='Testing')
+    sns.countplot(data=data, x='attack_cat')
     plt.xlabel('Attack Category')
     plt.ylabel('Count')
-    plt.title('Number of Instances per Attack Category')
     plt.xticks(rotation=45)
+    plt.title('Number of Network Traffic Instances per Attack Category')
+    plt.tight_layout()
     plt.show()
     
 def tmp():
@@ -398,6 +408,6 @@ if __name__ == "__main__":
 
     # mahalanobis_distance()
 
-    # attack_cat_plot()
+    attack_cat_plot()
 
-    tmp()
+    # tmp()

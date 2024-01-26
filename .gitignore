@@ -14,3 +14,6 @@ final_*
 # Ignore config files
 config_*
 !config_example.yaml
+
+# Ignore Saved Results
+saved_results/

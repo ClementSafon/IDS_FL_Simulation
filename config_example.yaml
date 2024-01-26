@@ -1,5 +1,5 @@
 # Aggregator configuration
-evaluation_type: 'centralized' # or 'decentralized'
+evaluation_type: 'centralized' # or 'decentralized' or 'secure'
 num_clients: 3 # the number of clients in the federated learning
 num_rounds: 1 # the number of rounds of aggregation
 

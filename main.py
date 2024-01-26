@@ -49,6 +49,7 @@ if __name__=="__main__":
     if not os.path.exists(data_folder) or args.redo_data:
         if os.path.exists(data_folder):
             logging.info("Overwriting existing data folder...")
+            shutil.rmtree(data_folder)
         else:
             logging.info("No data folder named {} found ! Creating it...".format(data_folder))
         num_clients = num_clients
@@ -83,7 +84,7 @@ if __name__=="__main__":
     if os.path.exists(args.output):
         logging.warning("Output folder already exists !")
         if args.force:
-            logging.warning("Overwriting existing folder...")
+            logging.warning("Overwriting existing folder (-f flag)")
             shutil.rmtree(args.output)
             os.makedirs(args.output)
         else:
@@ -105,7 +106,10 @@ if __name__=="__main__":
         os.system("python src/main_ce.py -o {} -d {} --exp --batch_size {} --num_epochs {} --num_rounds {} --num_clients {} --validation_split {}".format('_'.join(args.output.split("_")[2:]), data_name, batch_size, num_epochs, num_rounds, num_clients, validation_split))
     elif evaluation_type == "decentralized":
         logging.info("Running decentralized simulation...")
-        # TODO
+        os.system("python src/main_de.py -o {} -d {} --exp --batch_size {} --num_epochs {} --num_rounds {} --num_clients {} --validation_split {}".format('_'.join(args.output.split("_")[2:]), data_name, batch_size, num_epochs, num_rounds, num_clients, validation_split))
+    elif evaluation_type == "secure":
+        logging.info("Running federated simulation...")
+        os.system("python src/main_secure_ce.py -o {} -d {} --exp --batch_size {} --num_epochs {} --num_rounds {} --num_clients {} --validation_split {}".format('_'.join(args.output.split("_")[2:]), data_name, batch_size, num_epochs, num_rounds, num_clients, validation_split))
     else:
         logging.error("Invalid evaluation type !")
         logging.error("Exiting...")
