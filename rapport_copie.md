@@ -1,16 +1,20 @@
-# Intrusion Detection System for IoT devices using Federated Learning
+---
+title: Intrusion Detection System for IoT devices using Federated Learning
+author: Clément Safon, Sarah Ramdani
+date: 30-01-2024
+place: Télécom SudParis, Palaiseau, France
+---
 
-Clément S., Sarah R.
+\newpage
 
-*Télécom SudParis, Palaiseau, France*
-
-
-## Abstract 
+# Abstract 
 
 > With IoT systems spreading across all the different domains and aspects of our lives for the past few years, attacks on these devices have likewise seen a rise. Intrusion Detection Systems come in handy to identify and prevent any intrusion or attack directed towards these systems. However, in a world where the concern for data protection is crucial, it is important not to share data. Hence the raise of Federated Learning, especially in Intrusion Detection Systems. 
 
+\newpage
 
-## I. Introduction 
+
+# 1. Introduction   
 
 As the Internet of Things (IoT) continues to proliferate across diverse domains, the security challenges associated with IoT devices become increasingly paramount. This paper, as part of a Master's year project, presents an approach to enhancing the security of Local Area Networks (LAN) with IoT environments through the implementation of an Intrusion Detection System (IDS) utilizing Federated Learning (FL). 
 
@@ -19,24 +23,26 @@ The proposed system leverages the decentralized nature of FL to address privacy 
 
 Our framework enables IoT devices to collaboratively train a global intrusion detection model while keeping sensitive data localized on individual devices. This decentralized approach not only enhances data privacy but also contributes to the scalability and efficiency of the intrusion detection process. We evaluate the effectiveness of our system through extensive simulations and experiments, demonstrating its ability to detect a wide range of intrusions while preserving the confidentiality of sensitive information.
 
-The results showcase the potential of Federated Learning as a robust and privacy-preserving solution for building resilient Intrusion Detection Systems in IoT environments. The proposed framework not only addresses the current security challenges in IoT but also provides a foundation for developing adaptive and intelligent security mechanisms for the evolving landscape of connected devices.
+The results showcase the potential of Federated Learning as a privacy-preserving solution for building strong Intrusion Detection Systems in IoT environments. The proposed framework not only addresses the current security challenges in IoT but also provides a foundation for developing adaptive and intelligent security mechanisms for the evolving landscape of connected devices. Notwithstanding, as robust as it may appear, our implementation was vulnerable and not fully resilient to specific FL-oriented attacks such as Data Poisoning. Some counter-measures were identified, such as the KrumFusion for instance, to tackle this issue. 
 
 *We would like to point out that as Network Security students, Machine Learning, thus Federated Learning, is not our area of expertise. The purpose of this research project was to understand how Federated Learning was used in Network Intrusion Detection Systems (NIDS) and to understand the main issues concerning this technique.*
 
 **As this paper is still a draft, the following statement might evolve over the time:**
 This paper is sectionned as follows: first, we expose Federated Larning and explain how it works.
-Then, we will explore 
+Then, we will explore our two approaches for this experiment, both with with binary and multi-class classification. 
 
+\newpage
 
-## II. Federated Learning: An overview 
+# 2. Federated Learning: An overview 
 
 Federated Learning is a machine learning approach that enables model training (and testing) across decentralized devices holding local data samples without exanging them. The main goal is to build a model by collaborativly learning from local data while keeping the data localized and private. There is also different kinds of implementations, and we will only talk about cross-device federated learning, since we want a scenario where some individual clients (representing the IoT subnetworks) can contribute to the creation of a global model, which is more accurate.
 
-The main steps of the federated learning are the following : 
-- **Initialisation** : This step can be offline or online. In this part we create the unique shape of the model and some local training parameters like the number of epochs, the batch size or the validation split for each client
-- **Local Training** : The local devices use their local data to futher train the global model. Then they send to the aggregator the weights of their new model.
-- **Aggregation** : The servers then collect all the different results and combine them to get a global model. *(We will see after that what kind of fusion we can do to get a global model)*
-- **Iteration** : The weights of the global model are sent back to each client and we repeat the steps 2 and 3 until we finished.
+The main steps of the federated learning are the following :  
+
+- **Initialisation** : This step can be offline or online. In this part we create the unique shape of the model and some local training parameters like the number of epochs, the batch size or the validation split for each client  
+- **Local Training** : The local devices use their local data to futher train the global model. Then they send to the aggregator the weights of their new model.  
+- **Aggregation** : The servers then collect all the different results and combine them to get a global model. *(We will see after that what kind of fusion we can do to get a global model)*  
+- **Iteration** : The weights of the global model are sent back to each client and we repeat the steps 2 and 3 until we finished.  
 
 > In some cases, we can combine Federated Learning and Transfert Learning to have better results. To do so, after reiceiving the last global model from the server, one device can decide to perform an other local training to enhace the performance of its model in its particular situation.
 
@@ -52,16 +58,17 @@ In this study we will almost only use the _FederatedAverage_ method, but in the 
 
 >**Need more sources**
 
+Our Intrusion Detection System is a behavior-based IDS, opposed to a Rule Based Intrusion detection system[[7]](#7). In other words, the IDS classifies the incidents based on an event rather than based on rules. This means the different incidents are classified as belonging to certain classes (in a binary classification, either legitimate (or normal) traffic, and illegitimate (or malicious) traffic). This approach is extremely effective as it is a good compromise between both generality and precision, however, it does not give specific insights on the attack in particular, and in the case of our first binary classification experiment, did not specify to which attack category it belonged to. 
 
-Our Intrusion Detection System is a behavior-based IDS, opposed to a Rule Based Intrusion detection system[[7]](#7). In other words, the IDS learns from the behaviours, not
+\newpage
 
-## Dataset presentation
+# 3. Dataset presentation
 
-The dataset on which this project is based is the UNSW-NB15 dataset. Before this dataset, two others were largely looked upon: KDDCUP99 and NSLKDD. However, these two datasets were outdated, and not representative of the [[1]](#1) 
+The dataset on which this project is based is the UNSW-NB15 dataset. Before this dataset, two others were largely looked upon: KDDCUP99 and NSLKDD. However, these two datasets were outdated, and not representative of the actual traffic representation. [[1]](#1) The UNSW-NB15 dataset is a hybrid model: it is constructed based on real modern and normal behavior, with synthetical attack activities. 
 
 2,540,044 flows of traffic were opened for this dataset. 
 
-![Getting started](images/IXIA_scheme.png)
+![Scheme of the generation of network traffic](images/IXIA_scheme.png)
 
 Eleven types of attacks were categorized, as follows: \
 - Fuzzers
@@ -84,7 +91,7 @@ In this dataset, there were two main problems:
 
 In multiple experiments which will be presented further in this document, some classes 
 
-### Preprocessing 
+## 3.1 Preprocessing 
 
 The initial stage involves preprocessing the data to tailor the raw dataset to our requirements. Initially, we merge the four files from the original UNSW-NB15 dataset. Subsequently, we eliminate duplicate entries and identify the desired features based on the criteria outlined in this article [[2]](#2). This ensures consistency in results and provides a solid foundation for our analysis. The selected features are :
 
@@ -119,12 +126,13 @@ The initial stage involves preprocessing the data to tailor the raw dataset to o
 |     25      |     attack_cat      | The name of each attack category. In this data set, nine categories e.g. Fuzzers, Analysis, Backdoors, DoS Exploits, Generic, Reconnaissance, Shellcode, and Worms |
 |     26      |       label         | 0 for normal and 1 for attack records           |
 
+Some features were redundant in the testing set, such as ... and ... which are actually other. 
 
 After this step, we reduce the normal traffic by randomly taking a part of the traffic with a label equal to 0. This can allow us to reduce the normal traffic and to simplify the classification. Finally, we also simplify the problem by dropping the unpopulated attack categories.
 
 After having randomly split the entier dataset in a training set (80%) and a testing set (20%), the data distribution is : 
 
-![Preprocessed UNSW-NB15 Data Distribution](https://csafon.fr/uploads/fb7f2b16-82f1-4952-9adb-dbbbcd1e22d6.png)
+![Preprocessed UNSW-NB15 Data Distribution](images/number_traffic_instances_per_attack_cat.png)
 
 Here we have taken 5% of the normal trafic entries.
 
@@ -132,13 +140,13 @@ We can also mention that some other preprocessing will be done juste before the 
 
 >**Copier la figure des centroids ?**
 
-### Visualization 
+## 3.2 Visualization 
 
-![UNSW-NB15 Data Distribution](https://csafon.fr/uploads/e4c69b17-55ae-44aa-90f4-94e623aea615.png)
+![UNSW-NB15 Data Distribution](images/number_traffic_instances_per_category.png)
 
 
 In order to understand the results better and to get a clear view on what information they do provide, different visualization approaches were in use. 
-Some features were redundant in the testing set. 
+
 175,341 records were selected for the training set, 82,332 records for the testing set. 
 All of the features may not be relevant. The nominal features are converted to numeric features. 
 After the distance between centroids has been calculated, the results are plotted. 
@@ -149,7 +157,7 @@ insert the images of the visualisation artiicle (or just cite the article)
 Principal Component Analysis (PCA) is 
 Overlap problem: many attacks have a similar behavior comparing to 
 
-### Evaluations 
+## 3.3 Evaluations 
 
 In order to evaluate the different models, a large panel of metrics came in handy. Among them, the following ones: 
 
@@ -171,7 +179,9 @@ F1\ Score = \frac{2 \times Precision \times Recall}{Precision + Recall}
 $$
 
 - Accuracy
-Define all the terms which are not general knowledge! 
+$$
+Accuracy = \frac{True\ Positives + True\ Negatives}{Total\ Examples}
+$$
 
 
 Centralized EValuations.
@@ -179,7 +189,7 @@ Federated Evaluation
 
 
 old part :
-Different methods exist to evaluate models: FedFomo [[4]](#4) and L2C are one of them.
+Different methods exist to evaluate models: FedFomo [[4]](#4) and L2C (Learning to Collaborate) are one of them. These two techniques are personalized FL algorithms which locally evaluate the models from other clients to locally customize them.  
 **Important remark: these evaluation methods were only studied and researched at the beginning. They were not used during the course of our project. Notwithstanding, we found them interesting, and they could be the subject of further research by the reader.**
 
 For client selection in federated learning : 
@@ -190,34 +200,39 @@ Information Sciences, vol. 522, 2020, pp. 69–79.
 
 The device's resource, time consumption, as well as communcation cost should be looked upon in order to determine the selection of clients. 
 
-## Issues with Federated Learning and with Machine Learning in general
+\newpage
+
+# 4. Issues with Federated Learning and with Machine Learning in general
 
 
 In this section, many issues and challenges which occur in Machine Learning as well as in Federated learning will be covered.
 
 In any type of Machine Learning in general, the cleanliness of the data as well as the accurate labellisation is crucial. In our case, this had tremendous impact on the quality of the Intrusion Detection System, and can interfere with any potential commercial or legitimate usage. 
 
-Even thoug
+Even thought
 > What is the rate of false positives which make IDS unusable for real life conditions? 
 
 The diversity in the network traffic also appears to be an issue. 
 Diversity in the network traffic.
 Impact de l'apprentissage fédéré sur ça
 
+\newpage
 
 
-## Implemented IDS
+# 5. Implemented IDS
 
-IBM-FL was the first notebook we used 
+[IBM-FL](https://github.com/IBM/federated-learning-lib/tree/main) was the first notebook used to understand more ML and FL concepts.
 Flwer is the second module which was used in this experiment. 
+Computer specs to mention here. 
+Number of epochs + rounds for each training.
 
-### The Simulation Environment
+## 5.1. The Simulation Environment
 
 In this part we are just going to describe the simulation process that we used in our set up. In order to get the previous results we went into many simulations, adjusting a lot of parameters. And to do so, we have decided to create a simulation template, that can allow everyone to reroduce our experimentations. Instead of creating a Jupyter Note Book, we've created à [GitHub project](https://github.com/ClementSafon/IDS_FL_Simulation) that have all the necessary ressources to execute simulation without having to write anything. To reproduce, modify or go deeper into our researches, you can find all you need in this repository. There is documentation about, how to install, configure and run a simulation. Feel free to fork this project in case you want to upgrade it.
 
 Before, we started by using IBM FL 
 
-### First experiment: binary classification
+## 5.2. First experiment: binary classification
 
 In the first experiment, we went for the most simple IDS behavior, the one that can classify a network traffic either in Normal or Malicious. That allowed us to understand the federated mechnaismes and to manipulate some basic and still efficient models. In this party, we worked a lot base on the work of the works of [Yann Busnel and Léo Lavaur](https://github.com/phdcybersec/nof_2023/tree/main). The main objective here was to understand how the classification models works, how we can set up a federated learning environment to test the performances of our machine learning process and finally, show the benefit of the federated learning compared to traditionnal machine learning.
 
@@ -233,7 +248,7 @@ So now, we are able to split all the data between N client and destroy all the d
 ![Binary Classification Metrics Evolution](https://csafon.fr/uploads/d28ae231-cfbb-4361-8945-a2e9300ef976.png)
 
 
-### Second experiment: multi-class classification
+## 5.3. Second experiment: multi-class classification
 
 In this section, we explore our second experiment, this time with multi-class classification Federated Learning. 
 To tackle the issue of 
@@ -242,7 +257,7 @@ After some experiment and some time, another idea struc
 
 
 
-### Data repartition
+## 5.4. Data repartition
 
 Will be presented in this section the different data repartitions of the three experiments we conveyed.
 The first one, 
@@ -252,10 +267,10 @@ The second one, with the first client which has no network trafic from the "Gene
 ![Getting Started](images/data_repartition_client0_no_generic.png)
 
 The third one, which was the last experiment, each client had an even repartition of the different attack classes.
-![Getting Started](images/data_repartition_three_clients.png)
+![Data repartition for three clients](images/data_repartition_three_clients.png)
 
 In this experiment, the feature "rate" was not taken in the features we wanted to keep. 
-Even though in most litterature, only 24 features out of the 41 were kept, amongst which the feature "rate" was taken into account, in the training and testing set provided by the creators of 
+Even though in most litterature, only 24 features out of the 41 were kept, amongst which the feature "rate" was taken into account, in the training and testing set provided by the creators of the UNSW-NB15 dataset.
 
 Last time, we saw the differecence b
 to see for the federated evaluation. To see if it works. 
@@ -275,27 +290,40 @@ Fonction
 
 After all the experiments, we can now conclude that the clients get better and they learn from the others. 
 
-### Attacks
+# 6. Attacks
+## 6.1 Attack models
+
+After the end of the implementation, the following part consisted in testing if the models were resilient to different attacks, and test different data poisoning scenarii. 
+In the first two attack attack scenario, the attacker has no knowledge of the actual infrastructure, nor of how many clients there are. 
 
 
-![Getting Started](images/fuzzer_poisoning_attack.png)
+![Fuzzer poisoning attack](images/fuzzer_poisoning_attack.png)
 
-![Getting Started](images/simple_poisoning_attack.png)
 
-This third attack consisted in a targeted attack, which was actually 
-![Getting Started](images/targeted_poisoning_attack.png)
+![Simple poisoning attack](images/simple_poisoning_attack.png)
 
-### Counter-measures 
+This third attack consisted in a targeted attack, in which the attacker has the knowledge how many clients there are in the model update. This attack scenario may seem less realistic, as only the agregator server is supposed to hold this information. 
+
+![Targeted Poisoning attack](images/targeted_poisoning_attack.png)
+
+This is, by far, the most effective attack scenario. All the attacks were predicted as normal traffic. 
+
+# 7. Counter-measures 
 Ce sont des pistes de recherches, que de la théorie. 
 
 For the actual 
 
-## Bilan
+
+# 8. Conclusion
+
+Throughout the different experiments, we can conclude that our model.
+Our implementation and different models were rather simple, as most 
 Expériences, bilan, enseignements à tirer comment bien effecuter l'apprentissage
 
+\newpage
 
 
-## References
+# References
 <a id="1">[1]</a> 
 Moustafa, Nour & Slay, Jill. ([2015](https://www.researchgate.net/publication/287330529_UNSW-NB15_a_comprehensive_data_set_for_network_intrusion_detection_systems_UNSW-NB15_network_data_set)). 
 *UNSW-NB15: a comprehensive data set for network intrusion detection systems (UNSW-NB15 network data set).*
@@ -325,5 +353,5 @@ Shuangton Li, et al. ([2020](arXiv:2010.09470v2 [cs.CR])).
 "Do's and Don'ts of Machine Learning Security"
 
 <a id="7">[7]</a> 
-François-Xavier Aguessy. ([2023])(https://moodle.imtbs-tsp.eu/mod/resource/view.php?id=22573)
+François-Xavier Aguessy. ([2023](https://moodle.imtbs-tsp.eu/mod/resource/view.php?id=22573)).
 "Intrusion detection and alert correlation (as part of a Télécom SudParis class)"
