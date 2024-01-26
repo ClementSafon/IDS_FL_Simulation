@@ -247,6 +247,8 @@ So now, we are able to split all the data between N client and destroy all the d
 
 ![Binary Classification Metrics Evolution](https://csafon.fr/uploads/d28ae231-cfbb-4361-8945-a2e9300ef976.png)
 
+![Binary Classification Metrics Evolution](images/metrics_centralized.png)
+
 
 ## 5.3. Second experiment: multi-class classification
 
@@ -293,12 +295,10 @@ After all the experiments, we can now conclude that the clients get better and t
 # 6. Attacks
 ## 6.1 Attack models
 
-After the end of the implementation, the following part consisted in testing if the models were resilient to different attacks, and test different data poisoning scenarii. 
+After the end of the implementation, the following part consisted in testing if the models were resilient to different attacks, and test different data poisoning scenarios
 In the first two attack attack scenario, the attacker has no knowledge of the actual infrastructure, nor of how many clients there are. 
 
-
 ![Fuzzer poisoning attack](images/fuzzer_poisoning_attack.png)
-
 
 ![Simple poisoning attack](images/simple_poisoning_attack.png)
 
@@ -306,18 +306,18 @@ This third attack consisted in a targeted attack, in which the attacker has the 
 
 ![Targeted Poisoning attack](images/targeted_poisoning_attack.png)
 
-This is, by far, the most effective attack scenario. All the attacks were predicted as normal traffic. 
+This is, by far, the most effective attack scenario. All the malicious traffic was classified and predicted as normal traffic. 
 
 # 7. Counter-measures 
-Ce sont des pistes de recherches, que de la théorie. 
 
 For the actual 
 
 
 # 8. Conclusion
 
-Throughout the different experiments, we can conclude that our model.
-Our implementation and different models were rather simple, as most 
+Throughout the different experiments, we can conclude that our models is rather simple, but depicts an accurate representation of a FL system.
+Our implementation and different models were rather simple, as only three clients were included.
+The diversity of traffic is as well important. 
 Expériences, bilan, enseignements à tirer comment bien effecuter l'apprentissage
 
 \newpage
