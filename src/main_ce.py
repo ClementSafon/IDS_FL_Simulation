@@ -31,7 +31,7 @@ def get_model() -> tf.keras.Model:
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(256, activation="relu"),
             tf.keras.layers.Dropout(0.5),
-            tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
+            tf.keras.layers.Dense(128, activation="relu"),
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
@@ -254,6 +254,10 @@ if __name__ == "__main__":
     # Set the number of features and classes for the model
     n_features = testset[0].shape[1]
     n_classes = testset[1].shape[1]
+
+    get_model().summary()
+    print(n_features)
+    exit()
 
     strategy = FedAvg(
         fraction_fit=1.0,  # Sample 100% of available clients for training

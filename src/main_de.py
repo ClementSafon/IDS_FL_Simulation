@@ -31,7 +31,7 @@ def get_model() -> tf.keras.Model:
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(256, activation="relu"),
             tf.keras.layers.Dropout(0.5),
-            tf.keras.layers.Dense(128, activation="relu", input_shape=(n_features,)),
+            tf.keras.layers.Dense(128, activation="relu"),
             tf.keras.layers.Dropout(0.5),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dropout(0.5),
