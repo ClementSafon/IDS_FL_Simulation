@@ -255,10 +255,6 @@ if __name__ == "__main__":
     n_features = testset[0].shape[1]
     n_classes = testset[1].shape[1]
 
-    get_model().summary()
-    print(n_features)
-    exit()
-
     strategy = FedAvg(
         fraction_fit=1.0,  # Sample 100% of available clients for training
         fraction_evaluate=0.0,  # Disable the federated evaluation
