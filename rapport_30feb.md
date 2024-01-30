@@ -27,9 +27,7 @@ The results showcase the potential of Federated Learning as a privacy-preserving
 
 *We would like to point out that as Network Security students, Machine Learning, thus Federated Learning, is not our area of expertise. The purpose of this research project was to understand how Federated Learning was used in Network Intrusion Detection Systems (NIDS) and to understand how it could be implemented, and the main issues concerning this technique.*
 
-**As this paper is still a draft, the following statement might evolve over the time:**
-This paper is sectionned as follows: first, we expose Federated Larning and explain how it works.
-Then, we will explore our two approaches for this experiment, both with with binary and multi-class classification. To conclude, we will 
+This paper is structured as follows: first, we provide an overview of Federated Learning, elucidating its principles and functioning. Subsequently, we delve into the presentation of our dataset, encompassing preprocessing, visualization, and evaluations in Section 3. Moving forward, Section 4 details the implementation of the Intrusion Detection System (IDS), while Section 5 addresses various attack scenarios. In Section 6, we discuss counter-measures employed to enhance the system's robustness. Following that, in Section 7, we scrutinize issues related to Federated Learning and broader Machine Learning concerns. Finally, in Section 8, we draw conclusions and share insights gained from the experiment.
 
 \newpage
 
