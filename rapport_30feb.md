@@ -48,15 +48,11 @@ The main steps of the federated learning are the following :
 
 So now, what are the different way to merge the client's model in the aggregation step ?
 
->**(How are the data aggregated? )**
-
 So after the clients train their models, updated model parameters are sent to the server-based aggegator. To aggregate the new parameters to the global model, the most simple method used is called _FederatedAverage_. This algorithm aggregates the parameters by doing a weighted mean between all the client's model. The weight of each client can be calculated based on their dataset's size, number of epochs passed during the training or other parameters. 
 
 By only exchanging weight parameters instead of raw data, this process is inherently privacy-preserving. However, this scheme is not fully safeguarded against all types of malicious attacks: different attacks, such as _Membership inference_ for example.
 
 In this study we will almost only use the _FederatedAverage_ method, but in the last part, we will process some simulation using another method called _KrumFusion_. In this method, client are evaluated just before they contribute to the global model. If one client seems malicious, its contribution to the global model will be different from the other normal clients. So by evaluating the client's contribution, we can exclude the client responsible of an anormal contribution to the global model. 
-
->**Need more sources**
 
 Our Intrusion Detection System is a behavior-based IDS, opposed to a Rule Based Intrusion detection system[[7]](#7). In other words, the IDS classifies the incidents based on an event rather than based on rules. This means the different incidents are classified as belonging to certain classes (in a binary classification, either legitimate (or normal) traffic, and illegitimate (or malicious) traffic). This approach is extremely effective as it is a good compromise between both generality and precision, however, it does not give specific insights on the attack in particular, and in the case of our first binary classification experiment, did not specify to which attack category it belonged to. In addition, this is an *anomaly based detection*, which is when the normal (or legitimate) traffic is learned by the algorithm. 
 
@@ -104,7 +100,6 @@ In multiple experiments which will be presented further in this document, some c
 The initial stage involves preprocessing the data to tailor the raw dataset to our requirements. Initially, we merge the four files from the original UNSW-NB15 dataset. Subsequently, we eliminate duplicate entries and identify the desired features based on the criteria outlined in this article [[2]](#2). This ensures consistency in results and provides a solid foundation for our analysis. The selected features are :
 
 
-
 | Feature No. | Input Feature Name | Description                                     |
 |:-----------:|:-------------------:|:-----------------------------------------------:|
 |      1      |         dur         |        Record total duration                    |
@@ -146,7 +141,7 @@ Here we have taken 5% of the normal trafic entries.
 
 We can also mention that some other preprocessing will be done juste before the simulation process, during the creation of the client's datasets. In those steps, we take the data, create the X and Y vectors based on the *attack_cat* and *label* features. Then we apply a one hot encoding and a quantile transformation. The one hot encoding allow us to convert proprely the nominal features without introduce non wanted relation between the nominal classes. The quantile transformation is choose accordingly th the vizualisation article. This method ensures increased separation between centroids of each class, making them more distinguishable and facilitating easier detection of individual classes.
 
->**Copier la figure des centroids ?**
+
 
 ## 3.2 Visualization 
 
@@ -161,9 +156,9 @@ After the distance between centroids has been calculated, the results are plotte
 On the plot, a colored scaled represents as follows: the darker shades mean that the centroids were separated by a long distance, the lighter, by a shorter distance (classes are closer).
 
 insert the images of the visualisation artiicle (or just cite the article)
-->
-Principal Component Analysis (PCA) is 
-Overlap problem: many attacks have a similar behavior comparing to 
+![Visualisation of the class overlap and class imbalance with t-SNE](images/centroid_visualisation_tSNE.png)
+
+
 
 ## 3.3 Evaluations 
 
@@ -200,17 +195,15 @@ In our research, we exclusively used centralized learning since our testing set 
 
 In the upcoming sections, to gain a more detailed understanding of the results in multiclass classification, we will include the visualization of confusion matrices. These matrices directly illustrate the correspondence between the input attack categories and the predicted output provided by the model. This visualization will enhance our comprehension of the model's performance.
 
->**remove old part ?**
+**Other evaluation methods**
 
-old part :
-Different methods exist to evaluate models: FedFomo [[4]](#4) and L2C (Learning to Collaborate) are one of them. These two techniques are personalized FL algorithms which locally evaluate the models from other clients to locally customize them.  
+
+Another significant challenge in FL is the potential mismatch between the model created by the aggregating server and the specific requirements of individual clients. The aggregated model, while optimized for the overall dataset, may lack the fine-tuned specificity needed by each client. Consequently, clients may receive a model from the aggregating server that possesses sufficient knowledge to accurately classify certain behaviors into appropriate categories. However, the model might not align perfectly with the distinct and specific needs of individual clients. [4](#)
+
+Various methods prove useful in optimizing models for client-specific requirements. Among these, FedFomo [4](#4) and L2C (Learning to Collaborate) stand out as personalized Federated Learning (FL) algorithms. Both techniques involve the local evaluation of models from other clients to facilitate personalized customization at the local level.
+FedFomo is a personalized federated learning framework that optimizes model updates based on individual client objectives and target distributions. In contrast to traditional federated learning, FedFomo enables each client to federate with other relevant clients to achieve a stronger model based on specific client objectives. The FedFomo framework outperforms existing alternatives in non-IID (non-Independently and Identically Distributed) settings and allows clients to optimize different target distributions from their local training data.
+
 **Important remark: these evaluation methods were only studied and researched at the beginning. They were not used during the course of our project. Notwithstanding, we found them interesting, and they could be the subject of further research by the reader.**
-
-For client selection in federated learning : 
-Interesting topic to learn more about how Trusted Execution Environment (TEE) may make FL more robust against integrity attacks: 
-Y. Chen et al., “A Training-Integrity Privacy-Preserving Federated
-Learning Scheme with Trusted Execution Environment,”
-Information Sciences, vol. 522, 2020, pp. 69–79.
 
 The device's resource, time consumption, as well as communcation cost should be looked upon in order to determine the selection of clients. 
 
@@ -218,16 +211,12 @@ The device's resource, time consumption, as well as communcation cost should be 
 
 # 4. Implemented IDS
 
-[IBM-FL](https://github.com/IBM/federated-learning-lib/tree/main) was the first notebook used to understand more ML and FL concepts.
-Flwer is the second module which was used in this experiment. 
-
-The computer which was used to train all the data is 
-
-Number of epochs + rounds for each training.
 
 ## 4.1. The Simulation Environment
 
-In this part we are just going to describe the simulation process that we used in our set up. In order to get the previous results we went into many simulations, adjusting a lot of parameters. And to do so, we have decided to create a simulation template, that can allow everyone to reroduce our experimentations. Instead of creating a Jupyter Note Book, we've created à [GitHub project](https://github.com/ClementSafon/IDS_FL_Simulation) that have all the necessary ressources to execute simulation without having to write anything. To reproduce, modify or go deeper into our researches, you can find all you need in this repository. There is documentation about, how to install, configure and run a simulation. Feel free to fork this project in case you want to upgrade it.
+In this part we are just going to describe the simulation process that we used in our set up. After exploring federated learning with IBM-FL libraries, we began constructing a simulation environment based on the Flower libraries in Python. In order to get the previous results we went into many simulations, adjusting a lot of parameters. And to do so, we have decided to create a simulation template, that can allow everyone to reroduce our experimentations. Instead of creating a Jupyter Note Book, we've created à [GitHub project](https://github.com/ClementSafon/IDS_FL_Simulation) that have all the necessary ressources to execute simulation without having to write anything. To reproduce, modify or go deeper into our researches, you can find all you need in this repository. There is documentation about, how to install, configure and run a simulation. Feel free to fork this project in case you want to upgrade it.
+
+>Note: For reference, the simulations were executed on an Intel i5-11400H processor. 
 
 
 ## 4.2. First experiment: binary classification
@@ -269,9 +258,6 @@ To prove this, we had to split the dataset into the N clients, but this time, no
 So now, we are able to split all the data between N client and destroy all the data categorised as *Backdoors* for just one client. Then we wanted to see if that same client can, after the learning process, detect well the backdoors thanks to the federated learning. However, this is where the biggest problem of our simulation lied. Indeed, we were classifying the network traffic as either Normal or Malicious. So when testing the special client performance, we were not able to detecte if this client was able to detecte especially *Backdoors* or not and the impact since *Backdoors* results are just drown into all the Maliscious results. That is why, more precision was requested to be able to detecte precis results, and we went for a multiclassification in the second part.
 
 
-
-
-
 ## 4.3. Second experiment: multi-class classification
 
 In this section, we explore our second experiment, this time with multi-class classification Federated Learning.
@@ -303,13 +289,16 @@ Non-trainable params: 0 (0.00 Byte)
 
 Here, we employed the same optimizer as before, the Adam optimizer, with a lower learning rate set at 0.0001 to enhance our likelihood of success.
 
-Regarding the number of epochs, batch size, and the number of rounds, we now encounter a more challenging situation. Given the increased complexity of the multiclassification process compared to the previous one, achieving satisfactory results will require at least 10 rounds and 20 epochs, with a batch size of 64. Additionally, it's worth noting that our dataset is initially structured for training a single model. With three clients involved, the data is naturally divided into three smaller datasets. Having less data could make obtaining good results more challenging.
+Regarding the number of epochs, batch size, and the number of rounds, we now encounter a more challenging situation. Given the increased complexity of the multiclassification process compared to the previous one, achieving satisfactory results will require at least 10 rounds and 20 epochs, with a batch size of 64. Additionally, it's worth noting that our dataset is initially structured for training a single model. With three clients involved, the data is naturally divided into three smaller datasets. Having less data could make obtaining good results more challenging. That is why, we decided to drop certain attack category classes from our analysis. Some classes were sparsely populated, posing significant challenges for accurate detection. This simplification allows us to evaluate a less complex model.
+
+We considered only specific attack categories for our analysis, focusing on *Dos, Backdoor, Shellcode, Worms, Analysis*.
 
 Now we can test our model to see if it is a correct IDS that perform well enought to allow us to continue our simulations.
 
->**inserer image resultat 20rounds envoyé par messenger + confusion matrix à envoyer. Tout ça d'un FL 3 client, all data**
+![Confusion matrix with three clients](images/3cli_confusion_matrix.png)
+![Metrics evolution for the three clients](images/metrics_evol.png)
 
-We have now correct results and can pass to the next step.
+We have achieved satisfactory results with an F1-score of 60.2% and an accuracy of 82.1%. The model demonstrates effective predictions for almost every class, but it struggles with the *Reconnaissance* class. Despite our efforts, we were unable to improve the model further, and these results will be sufficient for the subsequent steps of our project. We can now proceed to the next phase.
 
 In the upcoming sections, we will conduct three simulations to assess the advantages of federated learning in different scenarios. The first simulation involves a single client working alone, having the entire dataset exclusively. This represents a standard centralized learning process. The second experiment replicates the previous centralized learning process, but this time, the client lacks a particular class in its training set, akin to a subnetwork lacking knowledge in a certain type of malicious traffic. In the final part, we will explore the results of federated learning involving three clients, where one of them is unaware of a specific attack category. In this last scenario, we aim to determine if the final global model can identify the missing class for the special client, making it possible for them to detect these particular types of attacks.
 
@@ -321,14 +310,14 @@ The first one, there is only one client which is trained on the whole dataset.
 ![Data repartition of the client 0](images/Multi_class/data_repartition_client0_all.png)
 
 The second one, still with only one client  the first which has no network traffic from the "Generic class" in the training set.
+
 ![Data repartition, client 0 with no generic](images/Multi_class/data_repartition_client0_no_generic.png)
 
 The third one, which was the last experiment we conducted, where each client had an even repartition of the dataset (1/3 of each class in which the network traffic was selected randomly), with the first client (client 0) who does have any traffic from the "Generic" attack class.  
 
 ![Data repartition for three clients](images/Multi_class/data_repartition_three_clients.png)
 
-The third experiment was done in order to test if client 0 would benefit from the other clients by 
-**Pourquoi ne pas avoir fait CL, FL avec tout, FL avec un client sans une classe?**
+The third experiment was done in order to test if client 0 would benefit from the other clients by learning th 
 
 In this experiment, the feature "rate" was not taken in the features we wanted to keep. 
 Even though in most litterature, only 24 features out of the 41 were kept, amongst which the feature "rate" was taken into account, in the training and testing set provided by the creators of the UNSW-NB15 dataset. 
@@ -341,26 +330,26 @@ The evaluation is then done after the aggregation part.
 
 After all the experiments, we can now conclude that the clients get better and they learn from the others. 
 
-![Number 1: Metrics evolution for client 0 which trains its model with the entire dataset (CL)](images/Multi_class/metrics_client0_all.png)
+![(Simulation N°1) Metrics evolution for client 0 which trains its model with the entire dataset (CL)](images/Multi_class/metrics_client0_all.png)
 
-![Number 2: Metrics evolution for client 0 which trains its model with the entire dataset without the generic class (CL)](images/Multi_class/metrics_client0_without_generic.png)
+![(Simulation N°2): Metrics evolution for client 0 which trains its model with the entire dataset without the generic class (CL)](images/Multi_class/metrics_client0_without_generic.png)
 
-![Number 3: Metrics evolution for the global model with a three client infrastructure](images/Multi_class/metrics_three_clients.png)
+![(Simulation N°3): Metrics evolution for the global model with a three client infrastructure](images/Multi_class/metrics_three_clients.png)
 
-![Number 1:Confusion matric client 0](images/Multi_class/confusion_matrix_client0_all.png)  
+![(Simulation N°1):Confusion matric client 0](images/Multi_class/confusion_matrix_client0_all.png)  
 
-![Number 2:Confusion matrix client 0 without the "Generic class](images/Multi_class/confusion_matrix_client0_nogeneric.png)  
+![(Simulation N°2):Confusion matrix client 0 without the "Generic class](images/Multi_class/confusion_matrix_client0_nogeneric.png)  
 
-![Number 3:Confusion matrix with the three clients, client 0 not having the class "Generic"](images/Multi_class/confusion_matrix_all.png)  
+![(Simulation N°3):Confusion matrix with the three clients, client 0 not having the class "Generic"](images/Multi_class/confusion_matrix_all.png)  
 
 Here is how confusion matrixes are read: on ordinate, the actual classes, on the abscissa, the predicted classes.
 
 In the confusion matrixes, we can observe a few things: first, for the Centralized Learning with only the client 0 which has no knowledge of the attack "Generic", makes many mistakes on both "Generic", "Exploits", and "Reconnaissance" classes.  
 
 In addition, it is important to note that the Federated Learning implementation has comparable results to the Centralized Learning one: 
-- for the accuracy, after 1 round we obtain an accuracy around 85% for the CL, and around 80% for the FL (after 3 rounds), comparing to a 70% one for the second experiment,
+- for the accuracy, after 1 round we obtain an accuracy around 82.6% for the CL, and around 81.3% for the FL (after 3 rounds), comparing to a 66.6% one for the second experiment,
 - a similar number of Exploits, Fuzzers, Generic, and Normal were correctly classified for both CL and FL (True Positives),
-
+- for the F1 score, we obtain an a f1-score of 60.7% for the Centralized Learning with all data, 37,5% for centralized learning 
 
 There are, notwithstanding, two classes that seem to be misclassified, no matter whether CL or the FL: the DoS and Reconnaissance attack categories. Many "Reconnaissances" packets were misclassified as "Fuzzers", and "DoS" as "Exploits". This is mainly explained due to the fact that these attack category classes represent minorities. Furthermore, this is also explained by the class overlap. (Centroids figure with the t-SNE visualization)
 Moreover, the traffic for the third experiment was split evenly and randomly for each and every attack category, which means that not all behaviors from the same attack category are represented. 
@@ -382,23 +371,23 @@ In this attack scenario, the objective was to evaluate the system's resilience a
 
 The aim of this attack is for the attacker to send a randomly generated model to the aggregator after the training phase. The malicious client sends weights that are set randomly to disrupt the global model and potentially disable the IDS, which may no longer function correctly. It is important to note that this attack is quite brute-force and can be easily detected and countered.
 
-In practice, during the learning phase when clients are adjusting their local models, the attacker (*client_0*) is already sending a false model with random weights selected between -5 and 5. These numbers are not chosen entirely randomly; they need to be significantly larger than an average real weight to introduce some disturbance into the final model. In our case, the weights rarely exceeded -3 or 3. It's essential to acknowledge that this range might vary based on the model and other parameters. However, it's feasible to retrieve the minimum and maximum from the global model provided to the clients before local training to set the appropriate range.  
+In practice, during the learning phase when clients are adjusting their local models, the attacker (*client_0*) is already sending a false model with random weights selected between -5 and 5. These numbers are not chosen entirely randomly; they need to be significantly larger than an average real weight to introduce some disturbance into the final model. In our case, the weights rarely exceeded -3 or 3. It's essential to acknowledge that this range might vary based on the model and other parameters. However, it's feasible to retrieve the minimum and maximum from the global model provided to the clients before local training to set the appropriate range.
 
-With this kind of attack, we can have the following results:
+With this kind of attack, we can have the following results : 
 
 ![Fuzzer poisoning attack](images/fuzzer_poisoning_attack.png)
 
 ![Metrics evolution - fuzzer poisoning attack](images/metrics_fuzzer_poisoning.png)
 
-We can see that the metrics evolution is not stable; the model is not making any progress and just seems to return random results when testing it.
-  
+We can see that the metrics evolution is not stable, the model is not making any progress and just seems to return random result when testing it.
+
 ### 5.1.2 Simple poisoning attack
 
 In this second scenario, our aim was to conduct a more sophisticated and targeted attack, one that is potentially less disruptive and more precise compared to the previous approach. Here, the attacker intends to send a deceptive model, which we hope will manipulate the global model to introduce malicious alterations. To achieve this, during the local training phase, the attacker trains the model to create a biased one. For instance, our malicious model could be trained to classify all traffic as "Normal," thereby reducing the efficiency of the IDS. Alternatively, the goal might be to make the model overlook a DOS attack, possibly to conceal a planned DOS attack. In our example, we opted for the former, where the malicious model detects and classifies all traffic as Normal.
 
 In practice, we provided the attacker with a training set in which all traffic was labeled as Normal (we modified the Y_Train matrix by setting all lines to Normal). The attacker then sends its manipulated model.
 
-So now, we have the following results:
+So now, we have the following results : 
 
 ![Simple poisoning attack](images/simple_poisoning_attack.png)
 
@@ -406,16 +395,15 @@ So now, we have the following results:
 
 The performance of the IDS remains acceptable despite the presence of the malicious client. Although the model is not as accurate as the one without the malicious client, it continues to function. Additionally, there is an expectation that the model could potentially improve with more rounds and epochs during the federated training. In the current conditions, this attack doesn't prove to be highly efficient. However, we will explore potential enhancements in the next section.
 
-
 ### 5.1.3 Targeted poisoning attack
 
 This third attack represents the most advanced stage in our project. Unlike the previous attacks, this poisoning attempt is more intricate and requires a deeper understanding of the federated learning infrastructure. The objective of this attack is to generate a malicious model after the aggregation phase. As observed earlier, sending a malicious model during the aggregation phase might not significantly impact the global model. Hence, it is crucial to manipulate the data precisely to obtain the desired malicious model resulting from the aggregation process.
 
 This attack draws substantial inspiration from the article *"Machine Learning with Adversaries: Byzantine Tolerant Gradient Descent"*[[9]](#9). The article discusses the concept that if we possess knowledge about the number of clients in the federated learning process, along with their individual model weights and federated weights used during the aggregation phase, we can strategically send a model (**V**) to the aggregator to achieve the intended model (**U**) after the aggregation process.
 
-Mathematically speaking this would result in this lemme extracted from [this article](#9) : 
-
-***Lemme 1***
+Mathematically speaking this would result in this lemma extracted from [this article](#9) : 
+  
+***Lemma 1***
 
 ```{=latex}
 \begin{tabular}{ll}
@@ -432,16 +420,17 @@ Immediate: if the Byzantine worker proposes \\
 \( V_n = \frac{1}{\lambda_n} \cdot U - \sum_{i=1}^{n-1} \frac{\lambda_i}{\lambda_n} \cdot V_i \), then \( F = U \).
 \end{tabular}
 ```
-
+  
 In practice, we introduced some modifications due to the unavailability of other clients' weights, typically provided to the aggregator. To estimate these weights, we conducted a normal fitting round, mimicking the process of the two other clients. These estimated weights were then treated as representative of the other clients' models. Additionally, knowing that the weights of each client used for the aggregation mean are uniform across all clients simplified the process.
 
 To summarize the different steps of the attack during the attacker's local training phase:  
 1. The attacker initially trains one model to estimate the weights of the other clients.  
 2. Subsequently, the attacker trains another model with a modified y_train, similar to the previous attack where all real traffic is labeled as Normal.
 3. The attacker calculates the final model using the proof formula. 
+
 *Final_model = f(n_client, normal_model, malicious_model)*
 
-Finally, the the results were the following : 
+Finally, the results were the following : 
 
 ![Targeted Poisoning attack](images/targeted_poisoning_attack.png)
 
@@ -481,7 +470,13 @@ Diversity in the network traffic.
 
 In ML, it is needed to have a suffiscient amount of data for each and every class in order to learn properly from the training dataset, and in order to detect them as well. How much?
 
-The dataset had massive class overlap. [2](#)
+The dataset had massive class overlap. This contributed to the poor classification of some classes in 4.5. [2](#)
+
+For client selection in federated learning : 
+Interesting topic to learn more about how Trusted Execution Environment (TEE) may make FL more robust against integrity attacks: 
+Y. Chen et al., “A Training-Integrity Privacy-Preserving Federated
+Learning Scheme with Trusted Execution Environment,”
+Information Sciences, vol. 522, 2020, pp. 69–79.
 
 \newpage
 
@@ -492,26 +487,18 @@ In this research project, we explored the application of FL in the context of In
 
 The paper provided an overview of Federated Learning, explaining its principles and detailing the steps involved in the training process across decentralized devices. We implemented a FL-based IDS framework that allows IoT devices to collaboratively train a global intrusion detection model while keeping sensitive data localized. This decentralized approach enhances data privacy, scalability, and efficiency in the intrusion detection process.
 
-Throughout our experiments, including both binary and multi-class classifications, using the UNSW-NB15 dataset, the results demonstrated the potential of FL as a privacy-preserving solution for building effective IDS in IoT environments. However, we acknowledged the vulnerability of our implementation to specific FL-oriented attacks such as Data Poisoning and identified counter-measures. We would still like to point out that our implementation is rather simple: it was a three client architecture.
+Throughout our experiments, including both binary and multi-class classifications, using the UNSW-NB15 dataset, the results demonstrated the potential of FL as a privacy-preserving solution for building effective IDS in IoT environments. However, we acknowledged the vulnerability of our implementation to specific FL-oriented attacks such as Data Poisoning and identified counter-measures. We would still like to point out that our implementation is rather simple: it was a three client architecture, with less than 20 rounds for most our experiments. 
 
 The research highlighted the challenges and issues in the application of FL to IDS, such as the need for clean and accurately labeled data, diversity in network traffic, and the impact of false positives and negatives on the overall security posture. Additionally, we discussed the importance of continuous refinement and fine-tuning of ML/FL models within IDS to enhance accuracy.
 
-The paper concluded by addressing potential counter-measures to the identified issues and emphasized the ongoing need for research and development in the intersection of Federated Learning and Network Security. Overall, this student research project contributes to understanding how FL can be utilized in the field of network security, paving the way for adaptive and intelligent security mechanisms in the evolving landscape of connected devices.
+The paper concluded by addressing potential counter-measures to the identified issues and emphasized the ongoing need for research and development in the intersection of Federated Learning and Network Security. Overall, this student research project contributes to understanding how FL can be utilized in the field of network security, paving the way for adaptive and intelligent security mechanisms in the evolving landscape of connected devices. Nevertheless, it is essential to acknowledge certain issues related to the automatic termination of training sessions, as our training experiences were consistently halted by arbitrary parameters. 
+In an optimal implementation, we would refrain from "manually stopping" the training and instead employ a mechanism to stop the training based on the convergence of specific optimization parameters. 
 
 Our experiments, ranging from binary to multi-class classifications using the UNSW-NB15 dataset, underscored the effectiveness of FL as a privacy-preserving solution. The decentralized learning process proved capable of detecting a wide range of intrusions while maintaining confidentiality. The experiments also exposed certain vulnerabilities, such as susceptibility to FL-oriented attacks like Data Poisoning. Identifying counter-measures, such as the KrumFusion method, is a step towards fortifying our FL-based IDS against potential threats.
 
-In acknowledging the challenges encountered, including data cleanliness, accurate labeling, and the impact of false positives and negatives, we underscore the importance of continual refinement and fine-tuning of our models. The diversity in network traffic emerged as a significant consideration, prompting us to recognize the need for a sufficient amount of diverse data for effective training and detection.
-
-
-[commment] (#
-- Expériences, bilan, enseignements à tirer comment bien effecuter l'apprentissage
-- Présenter les résultats avec hopefully les résultats cohérents qui co
-- état de l'art/background/restituer les recherches
-- Dire les obstacles qu'on a rencontré
-- Fuzzing)
+In acknowledging the challenges encountered, including data cleanliness, accurate labeling, and the impact of false positives and negatives and the automatic , we underscore the importance of continual refinement and fine-tuning of our models. The diversity in network traffic emerged as a significant consideration, prompting us to recognize the need for a sufficient amount of diverse data for effective training and detection.
 
 \newpage
-
 
 # References
 <a id="1">[1]</a> 
