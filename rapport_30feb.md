@@ -66,16 +66,16 @@ The dataset creation involves using the IXIA traffic generator configured with t
 
 ![Scheme of the generation of network traffic](images/IXIA_scheme.png)
 
-Eleven types of attacks were categorized, as follows: \
-- Fuzzers
-- Analysis 
-- DoS 
-- Exploits
-- Generic
-- Reconnaissance 
-- Shellcode 
-- Backdoors 
-- Worms  
+Eleven types of attacks were categorized, as follows:  
+- Fuzzers  
+- Analysis  
+- DoS  
+- Exploits  
+- Generic  
+- Reconnaissance   
+- Shellcode   
+- Backdoors   
+- Worms    
 
 2,540,044 flows of traffic were opened for this dataset. 
 It is important to notice that in this dataset, the distribution is not equal for every attack [[2]](#2), and quite different in some ways. This can largely affect the classifications (see results).
@@ -154,11 +154,8 @@ In order to understand the results better and to get a clear view on what inform
 All of the features may not be relevant. The nominal features are converted to numeric features. 
 After the distance between centroids has been calculated, the results are plotted. 
 On the plot, a colored scaled represents as follows: the darker shades mean that the centroids were separated by a long distance, the lighter, by a shorter distance (classes are closer).
-
-insert the images of the visualisation artiicle (or just cite the article)
+  
 ![Visualisation of the class overlap and class imbalance with t-SNE](images/centroid_visualisation_tSNE.png)
-
-
 
 ## 3.3 Evaluations 
 
