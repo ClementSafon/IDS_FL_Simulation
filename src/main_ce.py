@@ -305,9 +305,9 @@ if __name__ == "__main__":
 
     conf_matrix = confusion_matrix(y_true, y_pred)
 
-    # Visualize the confusion matrix as a heatmap
+    # Visualize the confusion matrix as a heatmap normalized by the number of samples by lines
     plt.figure(figsize=(8, 6))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False, xticklabels=m_unique, yticklabels=m_unique)
+    sns.heatmap(conf_matrix / conf_matrix.sum(axis=1)[:, np.newaxis], annot=True, fmt='.2%', cmap='Blues', cbar=False, xticklabels=m_unique, yticklabels=m_unique)
     plt.xlabel('Predicted Labels')
     plt.ylabel('True Labels')
     plt.title('Confusion Matrix')
