@@ -1,6 +1,6 @@
 # Simulation of an Intrusion Detection System using Federated Learning
 
-This repo is largely influenced by the works [Yann Busnel and Léo Lavaur](https://github.com/phdcybersec/nof_2023/tree/main).
+This repo is largely influenced by the work of [Yann Busnel and Léo Lavaur](https://github.com/phdcybersec/nof_2023/tree/main).
 
 For now, we use UNSW-NB15 dataset in the folder `./dataset/UNSW-B15` available [here](https://research.unsw.edu.au/projects/unsw-nb15-dataset).
 
@@ -68,11 +68,7 @@ You can find the following files:
 
 # ⚠️ Warning
 
-❗ For now, the simulation only works in **centralized evaluation** mode. ❗
-
-**The main_fe.py requires lib modifications to work.**
-
-_If you have the default Flwr version, please comment this argument in the main_fe.py file:_
+_If you have the default Flwr version, please make sure that this argument in the main_fe.py file is commented:_
 
 ```python
 metric_evaluation_target=METRIC_EVALUATION_TARGET,
